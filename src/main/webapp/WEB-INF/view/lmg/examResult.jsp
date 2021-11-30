@@ -25,8 +25,8 @@
 					
 			});
 	
-	function getTestDetail(ci_no, test_no) {
-		let loginId = $(this).html();
+	function getTestDetail(ci_no, test_no, index) {
+		let loginId = $("#login_" + index).val();
 		console.log(loginId, ci_no, test_no);
     	var param = {
 				ci_no : ci_no, test_no : test_no, loginId : loginId
@@ -112,8 +112,8 @@
 											class="inputTxt p100" type="text" id="searchWord"
 											name="searchWord" /></td>
 										<td width="100" height="25" style="font-size: 100%">
-											<!-- <input type="submit" class="btnType blue" value="검색" /> -->
-											<input type="hidden" name="pageNo" value="${param.pageNo }" />
+											
+											<input type="hidden" name="pageNo" value="1" />
 											<a href="#" onclick="document.getElementById('frm').submit();" class="btnType blue" ><span>검색</span></a>
 										</td>
 									</tr>
