@@ -1,0 +1,46 @@
+package kr.happyjob.study.lmg.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+/**
+
+  * @FileName : LmgExamCController.java
+
+  * @Project : lmselv
+
+  * @Date : 2021. 11. 12. 
+
+  * @작성자 : 윤효열
+
+  * @변경이력 :
+
+  * @프로그램 설명 : 학생이 접근하는 시험 관련 controller
+
+  */
+@Controller
+@RequestMapping("/lmg/")
+public class LmgExamCController {
+	
+	/**
+	
+	  * @Method Name : examination
+	
+	  * @작성일 : 2021. 11. 11.
+	
+	  * @작성자 : 윤효열
+	
+	  * @변경이력 : 
+	
+	  * @Method 설명 : 학습관리 - 시험응시 페이지(학생용)
+	
+	  * @return
+	
+	  */
+	@RequestMapping("examination.do")
+	public String examination() {
+		
+		return "/lmg/examination";
+	}
+}

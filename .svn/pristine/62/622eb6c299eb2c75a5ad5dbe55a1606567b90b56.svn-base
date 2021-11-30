@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.happyjob.study.lmg.dao.LmgDAO">
+
+	<!-- 강의 목록조회 -->
+	<select id="listLmgGrp" resultType="kr.happyjob.study.lmg.model.LmgListModel">
+		/*kr.happyjob.study.lmg.dao.LmgDAO*/
+		SELECT
+			  ci_no
+			, ci_name
+			, r_no
+			, ci_type
+			, loginID
+			, ci_content
+			, ci_date
+			, ci_limit
+			, ci_start
+			, ci_end
+			, ci_goal
+			, ci_plan
+			, ci_attend
+		FROM tb_classinfo
+		<where>
+			<if test="(sname != null) and (!sname.equals(''))">
+				<choose>
+					<when test="oname eq 'ci_no'.toString()">
+						and ci_no Like CONCAT('%', #{sname}, '%')
+					</when>
+					<when test="oname eq 'ci_name'.toString()">
+						and ci_name LIKE CONCAT('%', #{sname}, '%')
+					</when>
+					<otherwise>
+						AND 1=2
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+
+		ORDER BY ci_no DESC
+		LIMIT #{pageIndex}, #{pageSize}
+
+	</select>
+
+	<!-- selectBox 강의실 조회 -->
+	<select id="initComCod" resultType="kr.happyjob.study.lmg.model.LmgListModel">
+		/*kr.happyjob.study.lmg.dao.LmgDAO*/
+		SELECT r_no
+		FROM tb_room
+	</select>
+
+	<!-- 강의 총 목록 조회 -->
+	<select id="countListComnGrpCod" resultType="int">
+		/*kr.kosmo.jobkorea.system.dao.ComnCodDao.countListComnGrpCod*/
+		SELECT COUNT(1) AS tot_cnt FROM tb_classinfo
+		<where>
+			<if test="(sname != null) and (!sname.equals(''))">
+				<choose>
+					<when test="oname eq 'ci_no'.toString()">
+						and ci_no Like CONCAT('%', #{sname}, '%')
+					</when>
+					<when test="oname eq 'ci_name'.toString()">
+						and ci_name LIKE CONCAT('%', #{sname}, '%')
+					</when>
+					<otherwise>
+						AND 1=2
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+	</select>
+
+	<!-- 강의 단건 조회 -->
+	<select id="selectLmgGrp" resultType="kr.happyjob.study.lmg.model.LmgListModel">
+		/*kr.happyjob.study.lmg.model.LmgListModel*/
+		SELECT 
+			 TA.ci_no
+			,TA.loginID
+			,TA.r_no
+			,TA.ci_type
+			,TA.ci_name
+			,DATE_FORMAT(TA.ci_date,'%Y-%m-%d') as ci_date
+			,TA.ci_content
+			,DATE_FORMAT(TA.ci_start,'%Y-%m-%d') as ci_start
+			,DATE_FORMAT(TA.ci_end,'%Y-%m-%d') as ci_end
+			,TA.ci_goal
+			,TA.ci_attend
+			,TA.ci_plan
+			,TA.ci_limit
+			,count(TB.ci_no) as tmp_fld_01
+		FROM tb_classinfo TA
+		LEFT JOIN tb_list TB ON TA.ci_no = TB.ci_no
+		WHERE TA.ci_no = #{ci_no}
+	</select>
+
+	<!-- 강의 저장 -->
+	<insert id="insertLmg">
+		/*kr.happyjob.study.lmg.model.saveLmgGrp*/
+		INSERT INTO tb_classinfo
+		(
+		ci_no,
+		ci_name,
+		r_no,
+		ci_type,
+		loginID,
+		ci_date,
+		ci_content,
+		ci_start,
+		ci_end,
+		ci_goal,
+		ci_attend,
+		ci_plan,
+		ci_limit
+		)
+		VALUES
+		(
+		#{ci_no},
+		#{ci_name},
+		#{r_no},
+		#{ci_type},
+		#{loginID},
+		NOW(),
+		#{ci_content},
+		STR_TO_DATE(#{ci_start},'%Y-%m-%d'),
+		STR_TO_DATE(#{ci_end},'%Y-%m-%d'),
+		#{ci_goal},
+		#{ci_attend},
+		#{ci_plan},
+		#{ci_limit}
+		)
+	</insert>
+
+	<!-- 강의 수정 -->
+	<update id="updateLmg">
+		/*kr.happyjob.study.lmg.model.saveLmgGrp*/
+		UPDATE tb_classinfo
+		SET 
+			r_no = #{r_no},
+			ci_type = #{ci_type},
+			loginID = #{loginId},
+			ci_name = #{ci_name},
+			ci_date = NOW(),
+			ci_content = #{ci_content},
+			ci_start = STR_TO_DATE(#{ci_start},'%Y-%m-%d'),
+			ci_end = STR_TO_DATE(#{ci_end},'%Y-%m-%d'),
+			ci_goal = #{ci_goal},
+			ci_attend = #{ci_attend},
+			ci_plan = #{ci_plan},
+			ci_limit = #{ci_limit}
+		WHERE ci_no = #{ci_no}
+
+	</update>
+
+	<!-- 강의 삭제 -->
+	<delete id="deleteLmg">
+		/*kr.happyjob.study.lmg.model.deleteLmg*/
+		DELETE FROM tb_classinfo
+		WHERE ci_no = #{ci_no}
+	</delete>
+
+	<!-- 학생 강의 목록조회 -->
+	<select id="listLgmStudent" resultType="kr.happyjob.study.lmg.model.LmgListModel">
+		/*kr.happyjob.study.lmg.dao.LmgDAO*/
+		SELECT
+			  ci_no
+			, ci_name
+			, r_no
+			, ci_type
+			, loginID
+			, ci_content
+			, ci_date
+			, ci_limit
+			, ci_start
+			, ci_end
+			, ci_goal
+			, ci_plan
+			, ci_attend
+		FROM tb_classinfo
+		<where>
+			<if test="(sname != null) and (!sname.equals(''))">
+				<choose>
+					<when test="oname eq 'ci_no'.toString()">
+						and ci_no Like CONCAT('%', #{sname}, '%')
+					</when>
+					<when test="oname eq 'ci_name'.toString()">
+						and ci_name LIKE CONCAT('%', #{sname}, '%')
+					</when>
+					<otherwise>
+						AND 1=2
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+		ORDER BY ci_no DESC
+		LIMIT #{pageIndex}, #{pageSize}
+
+	</select>
+
+	<!-- 학생 강의 단건 조회 -->
+	<select id="selectLmgStudent" resultType="kr.happyjob.study.lmg.model.LmgListModel">
+		/*kr.happyjob.study.lmg.model.LmgListModel*/
+		SELECT 
+			 TA.ci_no
+			,TA.loginID
+			,TA.r_no
+			,TA.ci_type
+			,TA.ci_name
+			,DATE_FORMAT(TA.ci_date,'%Y-%m-%d') as ci_date
+			,TA.ci_content
+			,DATE_FORMAT(TA.ci_start,'%Y-%m-%d') as ci_start
+			,DATE_FORMAT(TA.ci_end,'%Y-%m-%d') as ci_end
+			,TA.ci_goal
+			,TA.ci_attend
+			,TA.ci_plan
+			,TA.ci_limit
+			,count(TB.ci_no) as tmp_fld_01
+		FROM tb_classinfo TA
+		LEFT JOIN tb_list TB ON TA.ci_no = TB.ci_no
+		WHERE TA.ci_no = #{ci_no}
+	</select>
+	
+</mapper>

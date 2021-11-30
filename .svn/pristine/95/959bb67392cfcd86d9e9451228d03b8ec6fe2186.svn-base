@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.lmg.dao.LmgExamDAO">
+	<!-- 현재 강의중인 목록 가져오기(시험 등록 위해) -->
+	<select id="getLectureList" parameterType="Map" resultType="kr.happyjob.study.lmg.model.ClassInfo">
+		select * from tb_classinfo
+		<where>
+			<if test='searchWord != null'>
+				ci_name like concat('%', #{searchWord}, '%')
+			</if>
+		</where>
+		order by ci_end desc limit #{startNum}, #{PageCntPerBlock};
+	</select>
+	<select id="getTestList" parameterType="Map" resultType="kr.happyjob.study.lmg.model.TestInfo">
+		select * from tb_testInfo a,  tb_classinfo b where a.ci_no = b.ci_no and a.ci_no = #{l_no}
+	</select>
+	<select id="getTotCntForDLecture" parameterType="Map" resultType="int">
+		select count(*) from tb_classinfo
+		<where>
+			<if test='searchWord != null'>
+				ci_name like concat('%', #{searchWord}, '%')
+			</if>
+		</where>
+	</select>
+	<insert id="addTestFir" parameterType="Map">
+		insert into tb_testInfo(test_name, test_start, test_end, ci_no) values(#{test_name}, #{test_start}, #{test_end}, #{ci_no})
+	</insert>
+</mapper>

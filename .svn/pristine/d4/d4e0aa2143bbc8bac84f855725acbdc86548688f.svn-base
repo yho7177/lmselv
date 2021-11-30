@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.lmg.dao.LmgExamADAO">
+	<!-- 현재 강의중인 목록 가져오기(시험 등록 위해) -->
+	<select id="getLectureList" parameterType="Map" resultType="kr.happyjob.study.lmg.model.ClassInfo">
+		select
+			ci_no,
+			loginID,
+			ci_name,
+			ci_start,
+			ci_end	
+		from tb_classinfo
+		<where>
+			<if test='searchWord != null'>
+				ci_name like concat('%', #{searchWord}, '%')
+			</if>
+		</where>
+		order by ci_end desc
+		limit #{startNum}, #{PageCntPerBlock}
+	</select>
+	
+	<!-- getLectureList의 페이징 처리를 위한 총 개수 구하기 -->
+	<select id="getTotCntForDLecture" parameterType="Map" resultType="int">
+		select
+			count(*)
+		from tb_classinfo
+		<where>
+			<if test='searchWord != null'>
+				ci_name like concat('%', #{searchWord}, '%')
+			</if>
+		</where>
+	</select>
+	
+	<!-- 학습관리 - 시험문제관리에서 과정명 클릭했을떄 과정에 대한 시험 리스트 ajax -->
+	<select id="getTestList" parameterType="Map" resultType="kr.happyjob.study.lmg.model.TestInfo">
+		select
+			a.test_no,
+			a.test_name,
+			a.test_start,
+			a.test_end,
+			b.ci_no,
+			b.ci_name,
+			a.test_status
+		 from tb_testInfo a, tb_classinfo b
+		 where a.ci_no = b.ci_no and a.ci_no = #{l_no}
+		 limit #{startNum}, #{PageCntPerBlock}
+	</select>
+	
+	<!-- getTestList의 페이징 처리를 위한 총 개수 -->
+	<select id="getTotalTestLstCnt" resultType="int" parameterType="Map">
+		select
+			count(*)
+		 from tb_testInfo
+		 where ci_no = #{l_no}
+	</select>
+	
+	<!-- 시험 정보 등록하는 ajax -->
+	<insert id="addTestFir" parameterType="Map">
+		insert into
+			tb_testInfo(
+				test_name, test_start, test_end, ci_no
+			)
+			values(
+				#{test_name}, #{test_start}, #{test_end}, #{ci_no}
+			)
+	</insert>
+	
+	<!-- 시험 문제 등록하는 ajax -->
+	<insert id="problemAdd" parameterType="Map">
+		insert into
+		 tb_test(
+		 	test_no,
+		 	q_no,
+		 	ci_no,
+		 	t_que,
+		 	t_ex1,
+		 	t_ex2,
+		 	t_ex3,
+		 	t_ex4,
+		 	t_ans
+		 )
+		 values(
+		 	#{test_no}
+		 	,#{q_no},
+		 	#{ci_no},
+		 	#{t_que},
+		 	#{t_ex1},
+		 	#{t_ex2},
+		 	#{t_ex3},
+		 	#{t_ex4},
+		 	#{t_ans}
+		 )
+	</insert>
+	
+	<!-- 시험 문제 리스트 조회 ajax -->
+	<select id="getProblemList" resultType="kr.happyjob.study.lmg.model.Test">
+		select
+			test_no,
+			q_no,
+			ci_no,
+			t_que,
+			t_score,
+			t_ex1,
+			t_ex2,
+			t_ex3,
+			t_ex4,
+			t_ans
+		from
+			tb_test
+		where
+			test_no = #{test_no}
+	</select>
+	
+	<!-- 시험 문제에 대한 상세정보 조회 ajax -->
+	<select id="problemDetail" parameterType="Map" resultType="kr.happyjob.study.lmg.model.Test">
+		select
+			test_no,
+			q_no,
+			ci_no,
+			t_que,
+			t_score,
+			t_ex1,
+			t_ex2,
+			t_ex3,
+			t_ex4,
+			t_ans 
+		 from
+		 	tb_test 
+		 where
+		 	test_no = #{test_no}
+		 		and
+		 	q_no = #{q_no}
+	</select>
+	
+	<!-- 시험 문제 삭제 ajax -->
+	<delete id="deleteProblem">
+		delete
+			from
+		tb_test
+		where
+			test_no = #{test_no}
+				and
+			q_no = #{q_no}
+	</delete>
+	
+	<!-- 시험문제 수정하는 ajax -->
+	<update id="updateProblem" parameterType="Map">
+		update
+			tb_test
+		set
+			q_no = #{q_no},
+			t_que = #{t_que},
+			t_ans = #{t_ans},
+			t_ex1 = #{t_ex1},
+			t_ex2 = #{t_ex2},
+			t_ex3 = #{t_ex3},
+			t_ex4 = #{t_ex4}
+		where
+			test_no = #{test_no}
+				and
+			q_no = #{q_no_org}
+	</update>
+	
+	<!-- 시험 대상자 확인을 위한 강의에 대한 시험정보 -->
+	<select id="getExsubjectMgt" parameterType="Map" resultType="kr.happyjob.study.lmg.model.TestInfoSumClass">
+		select
+			a.test_no,
+			a.test_name,
+			a.test_start,
+			a.test_end,
+			a.ci_no,
+			b.loginID,
+			b.ci_name,
+			a.test_status
+		 from tb_testInfo a inner join tb_classinfo b
+		 	on a.ci_no = b.ci_no
+		<where>
+			<if test="searchType == null and searchType ==''">
+				a.test_status = 'ing'
+			</if>
+			<if test="searchWord != null">
+				and b.ci_name like concat('%', #{searchWord}, '%')
+			</if>
+			<if test="searchType != null ">
+				and a.test_status = #{searchType}
+			</if>
+			<if test="loginID != null">
+				and loginID = #{loginID}
+			</if>
+		</where>
+		limit #{startNum}, #{PageCntPerBlock};
+	</select>
+	
+	<!-- 시험 대상자 확인을 위한 강의에 대한 시험정보 페이징 위한 총 개수 -->
+	<select id="getTotalCntByExsubject" parameterType="Map" resultType="int">
+		select
+			count(a.ci_no)
+		 from tb_testInfo a join tb_classinfo b
+		 	on a.ci_no = b.ci_no
+		<where>
+			<if test="searchType == null and searchType ==''">
+				a.test_status = 'ing'
+			</if>
+		</where>
+		<where>
+			<if test="searchWord != null">
+				b.ci_name like concat('%', #{searchWord}, '%')
+			</if>
+			<if test="searchType != null ">
+				and
+					a.test_status = #{searchType}
+			</if>
+			<if test="loginID != null">
+				and
+					loginID = #{loginID}
+			</if>
+		</where>
+	</select>
+	
+	
+	<select id="getNonTaker" parameterType="Map" resultType="kr.happyjob.study.lmg.model.TestInfoSumClass">
+		select
+			tj_no
+			test_no,
+			q_no,
+			loginID,
+			ci_no,
+			yj_status,
+			tj_ans,
+			tj_score
+		 from
+		 	tb_testjoin
+		 where
+		 	ci_no = #{cno}
+		 		and
+		 	test_no = #{tno}
+		 group by
+		 	test_no,
+		 	loginID
+	</select>
+	
+	<!-- 시험 응시자 리스트 -->
+	<select id="getTaker" resultType="int" parameterType="Map">
+		select
+			count(*)
+		 from
+		 	tb_list
+		 where
+		 	ci_no = #{cno}
+	</select>
+	<select id="testInfoSelect" resultType="kr.happyjob.study.lmg.model.InquireExam" parameterType="Map">
+		select
+			b.ci_no,
+			b.test_no,
+			b.loginID,
+			sum(b.tj_score) as tj_score
+		from
+			tb_list a inner join tb_testjoin b
+		on
+			a.ci_no = b.ci_no
+				and
+			a.loginID = b.loginId
+		where
+			a.ci_no = #{ci_no}
+				and
+			b.test_no = #{test_no}
+		group by
+			a.loginID,
+			b.test_no
+		order by
+			b.tj_no
+	</select>
+	<select id="noExamId" resultType="String">
+		select
+			loginID
+		from
+			tb_list
+		where
+			ci_no = #{ci_no}
+	</select>
+	
+	<!-- 시험 정보 삭제 -->
+	<delete id="testInfoDel" parameterType="Map">
+		delete
+		from tb_testInfo
+		where test_no = #{test_no}
+	</delete>
+	
+	<select id="getTestOne" resultType="kr.happyjob.study.lmg.model.TestInfo" parameterType="Map">
+		select 
+			test_name,
+			test_start,
+			test_end
+		from tb_testInfo
+		where test_no = #{test_no}
+	</select>
+	<update id="updateTestInfo" parameterType="Map">
+		update tb_testInfo set
+			test_name = #{test_name},
+			test_start = #{test_start},
+			test_end = #{test_end}
+		where test_no = #{test_no}
+	</update>
+</mapper>

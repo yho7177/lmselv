@@ -1,0 +1,98 @@
+package kr.happyjob.study.lmg.model;
+
+import java.util.Date;
+
+public class SurveyModel {
+
+	private int re_no;
+	
+	private String loginID;
+	
+	private int ci_no;
+	
+	private String rs_content;
+	
+	private int re_score;
+	
+	private String ci_name;
+	
+	private String t_name;
+	
+	private Date ci_start;
+	
+	private Date ci_end;
+	
+
+	public int getRe_no() {
+		return re_no;
+	}
+
+	public void setRe_no(int re_no) {
+		this.re_no = re_no;
+	}
+
+	public String getLoginID() {
+		return loginID;
+	}
+
+	public void setLoginID(String loginID) {
+		this.loginID = loginID;
+	}
+
+	public int getCi_no() {
+		return ci_no;
+	}
+
+	public void setCi_no(int ci_no) {
+		this.ci_no = ci_no;
+	}
+
+	public String getRs_content() {
+		return rs_content;
+	}
+
+	public void setRs_content(String rs_content) {
+		this.rs_content = rs_content;
+	}
+
+	public int getRe_score() {
+		return re_score;
+	}
+
+	public void setRe_score(int re_score) {
+		this.re_score = re_score;
+	}
+
+	public String getCi_name() {
+		return ci_name;
+	}
+
+	public void setCi_name(String ci_name) {
+		this.ci_name = ci_name;
+	}
+
+	public String getT_name() {
+		return t_name;
+	}
+
+	public void setT_name(String t_name) {
+		this.t_name = t_name;
+	}
+
+	public Date getCi_start() {
+		return ci_start;
+	}
+
+	public void setCi_start(Date ci_start) {
+		this.ci_start = ci_start;
+	}
+
+	public Date getCi_end() {
+		return ci_end;
+	}
+
+	public void setCi_end(Date ci_end) {
+		this.ci_end = ci_end;
+	}
+	
+}

@@ -1,0 +1,266 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>SamplePage1</title>
+<!-- sweet alert import -->
+<script src='${CTX_PATH}/js/sweetalert/sweetalert.min.js'></script>
+<jsp:include page="/WEB-INF/view/common/common_include.jsp"></jsp:include>
+<!-- sweet swal import -->
+
+<script type="text/javascript">
+	$(document).ready(
+			function() {
+				// 진행중 시험, 완료된 시험등 무엇을 검색햇는지?!
+				if("${param.searchType}" != '') {
+					$("#searchType").val("${param.searchType}").prop("selected","selected");
+				}
+				
+				// 무엇을 검색했는지 남겨놓기 위함
+				$("#searchWord").val("${param.searchWord}");
+
+				// 과정명 클릭했을때 시험 정보 가져오기
+				$(".lectureName").click(
+						function() {
+
+							// 강의번호 가져오기
+							let
+							l_no = $(this).attr("id");
+							l_no = l_no.split("_")[1];
+							$("#lectureNo").val(l_no);
+							let
+							param = {
+								l_no : l_no
+
+							}
+							var resultCallback = function(data) {
+								getTestList(data);
+							};
+
+							callAjax("/lmg/getTestList", "post", "text", true,
+									param, resultCallback);
+						});
+
+			});
+	// 시험 응시 미응시 조회
+	function testInfo(ci_no, test_no) {
+		var param = {
+				ci_no : ci_no, test_no : test_no
+		}
+		
+		var resultCallback = function(data) {
+			
+		};
+
+		callAjax("/lmg/testInfoSelect", "post", "text", false, param,
+				resultCallback);
+	}
+	
+	function testPaging(pageNo) {
+		console.log(pageNo);
+
+		var l_no = $("#lectureNo").val();
+		let
+		param = {
+			l_no : l_no,
+			pageNo : pageNo
+		}
+
+		var resultCallback = function(data) {
+			getTestList(data);
+			console.log("찍히냐?")
+		};
+
+		callAjax("/lmg/getTestList", "post", "text", false, param,
+				resultCallback);
+	}
+
+	// 모달 닫기
+	function cancelModal() {
+
+		$("#q_no").val(null); // 문제번호
+		$("#t_que").val(null); // 문제
+		$("#t_ans").val(null); // 정답
+		$("#t_ex1").val(null); // 보기1
+		$("#t_ex2").val(null); // 보기2
+		$("#t_ex3").val(null); // 보기3
+		$("#t_ex4").val(null); // 보기4
+		$("#hideBtn").empty();
+		$("#infoMessage").html("");
+		gfCloseModal();
+	}
+
+	// 강의에 대한 시험 대상자들의 상태를 조회할수 있는 데이터 ajax
+	function testInputModal(test_no) {
+		$("#test_no").val(test_no);
+		gfModalPop("#layer1");
+		let
+		ci_no = $("#lectureNo").val();
+		var param = {
+			test_no : test_no,
+			ci_no : ci_no
+		};
+
+		var resultCallback = function(data) {
+
+		}
+
+		// callAjax("/lmg/getProblemList", "post", "text", false, param, resultCallback);
+	}
+
+	function getTestList(data) {
+		$("#testList").empty().append(data);
+	}
+</script>
+
+</head>
+<body>
+	<input type="hidden" id="lectureNo" />
+	<!-- 모달 배경 -->
+	<div id="mask"></div>
+
+	<div id="wrap_area">
+
+		<h2 class="hidden">header 영역</h2>
+		<jsp:include page="/WEB-INF/view/common/header.jsp"></jsp:include>
+
+		<h2 class="hidden">컨텐츠 영역</h2>
+		<div id="container">
+			<ul>
+				<li class="lnb">
+					<!-- lnb 영역 --> <jsp:include
+						page="/WEB-INF/view/common/lnbMenu.jsp"></jsp:include> <!--// lnb 영역 -->
+				</li>
+				<li class="contents">
+					<!-- contents -->
+					<h3 class="hidden">contents 영역</h3> <!-- content -->
+					<div class="content">
+
+						<p class="Location">
+							<a href="../dashboard/dashboard.do" class="btn_set home">메인으로</a>
+							<span class="btn_nav bold">학습관리</span> <span class="btn_nav bold">시험
+								대상자 관리 </span> <a href="/lmg/exsubjectMgt.do" class="btn_set refresh">새로고침</a>
+						</p>
+
+						<br>
+
+
+						<div>
+							<form
+								action="${pageContext.request.contextPath }/lmg/exsubjectMgt.do"
+								method="get">
+								<table>
+									<tr>
+										<td width="30" height="25" style="font-size: 100%">
+											<select id = "searchType" name="searchType" >
+												<option value="ing" selected>진행중인 시험</option>
+												<option value="after">지난 시험</option>
+												<option value="complete">완료된 시험</option>
+											</select>
+										</td>
+										<td width="30" height="25" style="font-size: 100%"></td>
+										<td width="100" height="25"
+											style="font-size: 150%; font-weight: bold;">과정명</td>
+										<td width="300" height="25" style="font-size: 100%"><input
+											class="inputTxt p100" type="text" id="searchWord"
+											name="searchWord" /></td>
+										<td width="100" height="25" style="font-size: 100%"><input
+											type="submit" class="btnType blue" value="검색" /></td>
+									</tr>
+								</table>
+							</form>
+						</div>
+
+						<br />
+						<div>
+							<table class="col">
+								<caption>caption</caption>
+								<colgroup>
+									<col width="30%">
+									<col width="12%">
+									<col width="23%">
+
+								</colgroup>
+
+								<thead>
+									<tr>
+										<th scope="col">과정명</th>
+										<th scope="col">시험명</th>
+										<th scope="col">상태</th>
+										<th scope="col">대상자수</th>
+										<th scope="col">응시자수</th>
+										<th scope="col">미응시자수</th>
+									</tr>
+								</thead>
+								<tbody>
+									<c:if test="${result != null }">
+										<tr>
+											<td>${result }</td>
+											<td></td>
+											<td></td>
+										</tr>
+									</c:if>
+									<c:forEach var="i" items="${lst }">
+										<tr onclick="testInfo(${i.ci_no}, ${i.test_no })">
+											<td>${i.ci_name }</td>
+											<td>${i.test_name }</td>
+											<td>
+											<c:choose>
+												<c:when test="${i.test_status == 'ing' }">
+													진행중인 시험
+												</c:when>
+												<c:when test="${i.test_status == 'after' }">
+													지난 시험
+												</c:when>
+												<c:when test="${i.test_status == 'complete' }">
+													완료된 시험
+												</c:when>
+											</c:choose>
+											</td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+									</c:forEach>
+								</tbody>
+							</table>
+						</div>
+						<div class="paging_area" style="display: inline;">
+							<div class="paging">
+								<a class="first"
+									href="/lmg/examMgt.do?pageNo=1&searchWord=${param.searchWord}"></a>
+								<c:if test="${param.pageNo != null }">
+									<a class="pre"
+										href="/lmg/examMgt.do=${param.pageNo - 1 }&searchWord=${param.searchWord}">
+									</a>
+								</c:if>
+								<c:forEach var="i" begin="${pi.startPageNoOfBlock }"
+									end="${pi.endPageNoOfBlock }">
+									<a
+										href="/lmg/exsubjectMgt.do?pageNo=${i }&searchType=${param.searchType }&searchWord=${param.searchWord}">${i }</a>
+								</c:forEach>
+								<c:if
+									test="${param.pageNo != pi.totalPage or param.pageNo != null}">
+									<a class="next"
+										href="/lmg/examMgt.do3?pageNo=${param.pageNo + 1 }&searchWord=${param.searchWord}">
+									</a>
+								</c:if>
+								<a class="last"
+									href="/lmg/examMgt.do?pageNo=${pi.totalPage}&searchWord=${param.searchWord}"></a>
+
+							</div>
+						</div>
+					</div> <!--// content -->
+
+					<h3 class="hidden">풋터 영역</h3> <jsp:include
+						page="/WEB-INF/view/common/footer.jsp"></jsp:include>
+				</li>
+			</ul>
+		</div>
+	</div>
+</body>
+</html>

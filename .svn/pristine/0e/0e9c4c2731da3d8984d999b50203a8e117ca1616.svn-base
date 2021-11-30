@@ -1,0 +1,18 @@
+package kr.happyjob.study.lmg.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.happyjob.study.lmg.dao.LmgExamDDAO;
+import kr.happyjob.study.lmg.model.TestInfo;
+	
+
+
+public class LmgExamDServiceImpl implements LmgExamDService {
+	
+
+}

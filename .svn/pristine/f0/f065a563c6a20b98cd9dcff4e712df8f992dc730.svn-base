@@ -1,0 +1,236 @@
+package kr.happyjob.study.lmg.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.happyjob.study.lmg.model.ClassInfo;
+import kr.happyjob.study.lmg.model.InquireExam;
+import kr.happyjob.study.lmg.model.PagingInfo;
+import kr.happyjob.study.lmg.model.Test;
+import kr.happyjob.study.lmg.model.TestInfo;
+import kr.happyjob.study.lmg.model.TestInfoSumClass;
+import kr.happyjob.study.lmg.dao.LmgExamADAO;
+
+/**
+ * /**
+ * 
+ * @FileName : LmgExamServiceImpl.java
+ * 
+ * @Project : lmselv
+ * 
+ * @Date : 2021. 11. 11.
+ * 
+ * @작성자 : 윤효열
+ * 
+ * @변경이력 :
+ * 
+ * @프로그램 설명 : LmgExamSeriveImpl
+ * 
+ */
+@Service
+public class LmgExamAServiceImpl implements LmgExamAService {
+
+	@Autowired
+	LmgExamADAO dao;
+
+	@Override
+	public Map<String, Object> getLectureList(String searchWord, int pageNo) throws Exception {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("searchWord", searchWord);
+		// 페이징 처리
+		PagingInfo pi = pagingProcess(pageNo, map);
+		map.put("pi", pi);
+		map.put("startNum", pi.getStartNum());
+		map.put("PageCntPerBlock", pi.getPostPerPage());
+		List<ClassInfo> lst = dao.getLectureList(map);
+		map.put("lst", lst);
+		// 현재 진행중인 강의 목록 가져오기(시험 등록 위해)
+
+		return map;
+	}
+
+	// paginginfo 정보 가져오기 위한 메서드
+	private PagingInfo pagingProcess(int pageNo, Map<String, Object> map) throws Exception {
+		PagingInfo pi = new PagingInfo();
+		pi.setStartNum(pageNo);
+		int total = dao.getTotCntForDLecture(map);
+
+		pi.setTotalPage(total);
+		pi.setCurrentPagingBlock(pageNo);
+
+		pi.setStartPageNoOfBlock(pi.getCurrentPagingBlock());
+		pi.setEndPageNoOfBlock(pi.getStartPageNoOfBlock());
+		pi.setTotalPagingBlockCnt(pi.getTotalPage());
+		return pi;
+	}
+
+	@Override
+	public Map<String, Object> getTestList(String l_no, int pageNo) throws Exception {
+		Map<String, Object> tmp = new HashMap<String, Object>();
+		PagingInfo pi = pagingProcess(pageNo, l_no);
+		tmp.put("l_no", l_no);
+		tmp.put("startNum", pi.getStartNum());
+		tmp.put("PageCntPerBlock", pi.getPostPerPage());
+		// 학습관리 - 시험문제관리에서 과정명 클릭했을떄 과정에 대한 시험 리스트
+		List<TestInfo> lst = dao.getTestList(tmp);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("lst", lst);
+		map.put("pi", pi);
+		return map;
+	}
+
+	private PagingInfo pagingProcess(int pageNo, String l_no) throws Exception {
+		PagingInfo pi = new PagingInfo();
+		pi.setStartNum(pageNo);
+		int total = dao.getTotalTestLstCnt(l_no);
+
+		pi.setTotalPage(total);
+		pi.setCurrentPagingBlock(pageNo);
+
+		pi.setStartPageNoOfBlock(pi.getCurrentPagingBlock());
+		pi.setEndPageNoOfBlock(pi.getStartPageNoOfBlock());
+		pi.setTotalPagingBlockCnt(pi.getTotalPage());
+		return pi;
+	}
+
+	@Override
+	public void addTestFir(TestInfo info) throws Exception {
+		int i = dao.addTestFir(info);
+	}
+
+	@Override
+	public int problemAdd(Map<String, Object> paramMap) throws Exception {
+		return dao.problemAdd(paramMap);
+	}
+
+	@Override
+	public List<Test> getProblemList(Map<String, Object> paramMap) throws Exception {
+		return dao.getProblemList(paramMap);
+	}
+
+	@Override
+	public Test probelmDetail(Map<String, Object> paramMap) throws Exception {
+		return dao.problemDetail(paramMap);
+	}
+
+	@Override
+	public int deleteProblem(Map<String, Object> paramMap) throws Exception {
+		return dao.deleteProblem(paramMap);
+	}
+
+	@Override
+	public int updateProblem(Map<String, Object> paramMap) throws Exception {
+		return dao.updateProblem(paramMap);
+	}
+
+	@Override
+	public Map<String, Object> getExsubjectMgt(int pageNo, Map<String, Object> paramMap) throws Exception {
+		Map<String, Object> map = new HashMap<String, Object>();
+
+		PagingInfo pi = pagingProcess1(pageNo, paramMap);
+		paramMap.put("startNum", pi.getStartNum());
+		paramMap.put("PageCntPerBlock", pi.getPostPerPage());
+		List<TestInfoSumClass> lst = dao.getExsubjectMgt(paramMap);
+		List<Integer> non_taker = new ArrayList<Integer>();
+		List<Integer> taker = new ArrayList<Integer>();
+		for (TestInfoSumClass t : lst) {
+			map.put("cno", t.getCi_no());
+			map.put("tno", t.getTest_no());
+			List<TestInfoSumClass> tmp = dao.getNonTaker(map);
+
+			non_taker.add(tmp.size());
+			taker.add(dao.getTaker(map));
+
+			map.remove("cno");
+			map.remove("tno");
+		}
+
+		map.put("lst", lst);
+		map.put("pi", pi);
+		map.put("nonTaker", non_taker);
+		map.put("taker", taker);
+		return map;
+	}
+
+	private PagingInfo pagingProcess1(int pageNo, Map<String, Object> paramMap) throws Exception {
+		PagingInfo pi = new PagingInfo();
+		pi.setStartNum(pageNo);
+		int total = dao.getTotalCntByExsubject(paramMap);
+
+		pi.setTotalPage(total);
+		pi.setCurrentPagingBlock(pageNo);
+
+		pi.setStartPageNoOfBlock(pi.getCurrentPagingBlock());
+		pi.setEndPageNoOfBlock(pi.getStartPageNoOfBlock());
+		pi.setTotalPagingBlockCnt(pi.getTotalPage());
+		return pi;
+	}
+
+	@Override
+	public Map<String, Object> testInfoSelect(Map<String, Object> paramMap) throws Exception {
+		Map<String, Object> map = new HashMap<String, Object>();
+		// 응시자들의 정보 가져오기
+		List<InquireExam> takers = dao.testInfoSelect(paramMap);
+		// 강의 듣는 모든 아이디 가져오기
+		List<String> tmp = dao.noExamId(paramMap);
+		// 응시자들의 상태(과락, 통과)
+		List<String> status = getExamStatus(takers);
+		// 미응시자들 파악
+		List<String> nonTakers = getExamNonTakers(tmp, takers);
+
+		map.put("takers", takers);
+		map.put("status", status);
+		map.put("nonTakers", nonTakers);
+		return map;
+	}
+	
+	// 미응시자인 사람 찾는 메서드
+	private List<String> getExamNonTakers(List<String> tmp, List<InquireExam> takers) {
+		List<String> lst = new ArrayList<String>();
+		String result = null;
+		if (takers.size() > 0) {
+			for (String s : tmp) {
+				result = null;
+				for (InquireExam i : takers) {
+					if (s.equals(i.getLoginID())) {
+						result = null;
+						break;
+					} else {
+						result = s;
+					}
+				}
+				if (result != null) {
+					lst.add(result);
+				}
+			}
+		} else if (takers.size() == 0) {
+			System.out.println("takers 가 0이다");
+			for(String j : tmp) {
+				lst.add(j);
+			}
+		}
+
+		return lst;
+	}
+
+	private List<String> getExamStatus(List<InquireExam> lst) {
+		List<String> status = new ArrayList<String>();
+		for (InquireExam i : lst) {
+			if (i.getTj_score() >= 60) {
+				status.add("통과");
+			} else if (i.getTj_score() < 60) {
+				status.add("과락");
+			}
+		}
+		for (String s : status) {
+			System.out.println(s);
+		}
+		return status;
+	}
+
+}

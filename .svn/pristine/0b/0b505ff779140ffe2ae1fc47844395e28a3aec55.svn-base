@@ -1,0 +1,58 @@
+package kr.happyjob.study.lmg.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import kr.happyjob.study.lmg.model.ClassInfo;
+import kr.happyjob.study.lmg.model.PagingInfo;
+import kr.happyjob.study.lmg.model.Test;
+import kr.happyjob.study.lmg.model.TestInfo;
+import kr.happyjob.study.lmg.model.TestInfoSumClass;
+
+/**
+/**
+
+  * @FileName : LmgExamDAO.java
+
+  * @Project : lmselv
+
+  * @Date : 2021. 11. 11. 
+
+  * @작성자 : 윤효열
+
+  * @변경이력 :
+
+  * @프로그램 설명 : LmgExamDAO
+
+  */
+@Repository
+public interface LmgExamADAO {
+	// 현재 진행중인 강의 목록 가져오기(시험 등록 위해)
+	List<ClassInfo> getLectureList(Map<String, Object> map) throws Exception;
+	
+	// 학습관리 - 시험문제관리에서 과정명 클릭했을떄 과정에 대한 시험 리스트
+	List<TestInfo> getTestList(Map<String, Object> map) throws Exception;
+
+	int getTotCntForDLecture(Map<String, Object> map) throws Exception;
+
+	int addTestFir(TestInfo info) throws Exception;
+
+	int getTotalTestLstCnt(String l_no) throws Exception;
+
+	int problemAdd(Map<String, Object> paramMap) throws Exception;
+
+	List<Test> getProblemList(Map<String, Object> paramMap) throws Exception;
+
+	Test problemDetail(Map<String, Object> paramMap) throws Exception;
+
+	int deleteProblem(Map<String, Object> paramMap) throws Exception;
+
+	int updateProblem(Map<String, Object> paramMap) throws Exception;
+
+	List<TestInfoSumClass> getExsubjectMgt(Map<String, Object> paramMap) throws Exception;
+
+	int getTotalCntByExsubject(Map<String, Object> paramMap) throws Exception;
+	
+}

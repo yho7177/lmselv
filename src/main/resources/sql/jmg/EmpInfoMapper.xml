@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.jmg.dao.EmpInfoDao">
+
+	<!-- 취업 정보 조회 -->
+	<select id = "empInfoList" resultType = "kr.happyjob.study.jmg.model.EmpInfoModel">
+		SELECT
+				j.job_no
+			,	u.name
+			,	u.tel
+			,	DATE_FORMAT(j.job_hiredate, '%Y-%m-%d') as job_hiredate
+            ,   case isnull(j.job_retire)
+                     when 1 then ''
+                     else DATE_FORMAT(j.job_retire, '%Y-%m-%d')
+                end as job_retire 			
+			,	j.job_name
+			,	j.job_yn
+		FROM tb_jobinf j
+			LEFT JOIN	tb_userinfo u
+			ON			j.loginID = u.loginID
+ 		      <where>
+         <if test="(searchKey != null) and (!searchKey.equals(''))">
+            <choose>
+               <when
+                  test="(searchKey != null) and (searchKey eq 'all'.toString())">
+                  and (u.name Like CONCAT('%', #{searchWord}, '%') OR j.job_name LIKE CONCAT('%', #{searchWord}, '%'))
+               </when>
+                 <when
+                  test="(searchKey != null) and (searchKey eq 'sName'.toString())">
+                  and u.name Like CONCAT('%', #{searchWord}, '%')
+               </when>
+               <when
+                  test="(searchKey != null) and (searchKey eq 'comName'.toString())">
+                  and j.job_name LIKE CONCAT('%', #{searchWord}, '%')
+               </when>
+            </choose>
+         </if>
+      </where>
+		 ORDER BY j.job_no DESC
+		 LIMIT #{pageIndex}, #{pageSize}
+	</select>
+	
+		
+	<!-- 취업 정보 갯수 조회 -->
+	<select id="empInfoCnt" resultType="int">
+		/*kr.happyjob.study.jmg.dao.EmpInfoDao.empInfoCnt*/
+		SELECT COUNT(*)
+		FROM tb_jobinf j
+			LEFT JOIN	tb_userinfo u
+			ON			j.loginID = u.loginID
+ 		 		      <where>
+         <if test="(searchKey != null) and (!searchKey.equals(''))">
+            <choose>
+               <when
+                  test="(searchKey != null) and (searchKey eq 'all'.toString())">
+                  and (u.name Like CONCAT('%', #{searchWord}, '%') OR j.job_name LIKE CONCAT('%', #{searchWord}, '%'))
+               </when>
+                 <when
+                  test="(searchKey != null) and (searchKey eq 'sName'.toString())">
+                  and u.name Like CONCAT('%', #{searchWord}, '%')
+               </when>
+               <when
+                  test="(searchKey != null) and (searchKey eq 'comName'.toString())">
+                  and j.job_name LIKE CONCAT('%', #{searchWord}, '%')
+               </when>
+            </choose>
+         </if>
+      </where>
+		ORDER BY j.job_no DESC
+	</select>
+	
+	<!-- 취업 정보 단건  삭제 -->
+	<delete id="deleteEmpInfo">
+		/*kr.happy.study.system.dao.EmpInfoDao.deleteEmpInfo*/
+		DELETE FROM tb_jobinf WHERE job_no = #{job_no}
+	</delete>	
+	
+	<!-- 취업 목록 단건 조회 -->
+	<select id="selectEmpInfo" resultType="kr.happyjob.study.jmg.model.EmpInfoModel">
+		SELECT
+				j.job_no
+			,	u.name
+			,	u.tel
+			,	DATE_FORMAT(j.job_hiredate, '%Y-%m-%d') as job_hiredate
+			,	DATE_FORMAT(j.job_retire, '%Y-%m-%d') as job_retire
+			,	j.job_name
+			,	j.job_yn
+		FROM tb_jobinf j
+			LEFT JOIN	tb_userinfo u
+			ON			j.loginID = u.loginID
+		WHERE  j.job_no = #{job_no}
+	</select>
+	
+	<!-- 취업 정보 목록 조회 -->
+	<select id ="empInfoAddList" resultType ="kr.happyjob.study.jmg.model.EmpInfoModel">
+		SELECT 	u.name, 
+				u.reg_date,
+				u.loginID, 
+				u.tel, 
+				u.email, 
+				u.email_detail, 
+				c.ci_name
+		FROM tb_userinfo u inner join tb_list l inner join tb_classinfo c on l.loginID = u.loginID and c.ci_no = l.ci_no	
+        <where>
+         <if test="(searchKey2 != null) and (!searchKey2.equals(''))">
+            <choose>
+               <when
+                  test="(searchKey2 != null) and (searchKey2 eq 'all'.toString())">
+                  and (u.name Like CONCAT('%', #{searchWord2}, '%') OR c.ci_name LIKE CONCAT('%', #{searchWord2}, '%'))
+               </when>
+                 <when
+                  test="(searchKey2 != null) and (searchKey2 eq 's_nm'.toString())">
+                  and u.name Like CONCAT('%', #{searchWord2}, '%')
+               </when>
+               <when
+                  test="(searchKey2 != null) and (searchKey2 eq 'lec_nm'.toString())">
+                  and c.ci_name LIKE CONCAT('%', #{searchWord2}, '%')
+               </when>
+            </choose>
+         </if>
+      </where>
+      	GROUP BY name
+		 ORDER BY l.ci_no DESC
+		 LIMIT #{pageIndex}, #{pageSize}
+	</select>
+	
+		
+	<!-- 취업 정보 목록 갯수 조회 -->
+	<select id="empInfoAddCnt" resultType="int">
+		/*kr.happyjob.study.jmg.dao.EmpInfoDao.empInfoCnt*/
+		SELECT COUNT(DISTINCT (u.name))
+		from tb_userinfo u inner join tb_list l inner join tb_classinfo c on l.loginID = u.loginID and c.ci_no = l.ci_no
+        <where>
+         <if test="(searchKey2 != null) and (!searchKey2.equals(''))">
+            <choose>
+               <when
+                  test="(searchKey2 != null) and (searchKey2 eq 'all'.toString())">
+                  and (u.name Like CONCAT('%', #{searchWord2}, '%') OR c.ci_name LIKE CONCAT('%', #{searchWord2}, '%'))
+               </when>
+                 <when
+                  test="(searchKey2 != null) and (searchKey2 eq 's_nm'.toString())">
+                  and u.name Like CONCAT('%', #{searchWord2}, '%')
+               </when>
+               <when
+                  test="(searchKey2 != null) and (searchKey2 eq 'lec_nm'.toString())">
+                  and c.ci_name LIKE CONCAT('%', #{searchWord2}, '%')
+               </when>
+            </choose>
+         </if>
+      </where>
+		ORDER BY l.ci_no DESC
+	</select>
+	
+	<!-- 취업 정보 등록 폼 -->
+	<select id="fRegist" resultType="kr.happyjob.study.jmg.model.EmpInfoModel">
+		SELECT name, tel, loginID
+		FROM   tb_userinfo 
+		WHERE loginID = #{loginID}
+	</select>
+	
+	<!-- 취업 정보 추가 -->
+	<insert id="insertEmpList">
+       INSERT INTO tb_jobinf( 
+       				loginID , 
+       				job_name ,
+       				job_hiredate ,
+       				job_retire , 
+       				job_yn
+       			
+       			) VALUES (
+       				#{loginID} ,
+       				#{job_name},
+       				STR_TO_DATE(#{job_hiredate}, '%Y-%m-%d'),
+                    <if test="(job_retire == null) or (job_retire.equals(''))">
+                  	null,
+                    </if>
+                    <if test="(job_retire != null) and (!job_retire .equals(''))">
+                    STR_TO_DATE(#{job_retire}, '%Y-%m-%d'),
+                    </if>   
+       				<if test="(job_retire == null) or (job_retire.equals(''))">
+                  	'Y'
+                    </if>
+                    <if test="(job_retire != null) and (!job_retire .equals(''))">
+                    'N'
+                    </if>  
+       			)
+   </insert>
+   
+   	<!-- 취업 정보 수정 -->
+	<update id="updateEmpList">
+	    UPDATE tb_jobinf j, tb_userinfo u
+	           SET 	   u.tel = #{telInfo} ,
+	                   j.job_hiredate = STR_TO_DATE(#{job_hiredateInfo}, '%Y-%m-%d') ,
+	                   j.job_retire = STR_TO_DATE(#{job_retireInfo}, '%Y-%m-%d') ,
+	                   j.job_name = #{job_nameInfo} ,
+	                   j.job_yn = #{job_ynInfo}
+	       	   WHERE  j.job_no = #{temp_job_no}
+   </update>
+</mapper>

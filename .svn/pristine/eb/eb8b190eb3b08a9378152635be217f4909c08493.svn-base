@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.lmg.dao.LmgExamADAO">
+	<!-- 현재 강의중인 목록 가져오기(시험 등록 위해) -->
+	<select id="getLectureList" parameterType="Map" resultType="kr.happyjob.study.lmg.model.ClassInfo">
+		select * from tb_classinfo
+		<where>
+			<if test='searchWord != null'>
+				ci_name like concat('%', #{searchWord}, '%')
+			</if>
+		</where>
+		order by ci_end desc limit #{startNum}, #{PageCntPerBlock}
+	</select>
+	<select id="getTestList" parameterType="Map" resultType="kr.happyjob.study.lmg.model.TestInfo">
+		select * from tb_testInfo a,  tb_classinfo b where a.ci_no = b.ci_no and a.ci_no = #{l_no} limit #{startNum}, #{PageCntPerBlock}
+	</select>
+	<select id="getTotCntForDLecture" parameterType="Map" resultType="int">
+		select count(*) from tb_classinfo
+		<where>
+			<if test='searchWord != null'>
+				ci_name like concat('%', #{searchWord}, '%')
+			</if>
+		</where>
+	</select>
+	<insert id="addTestFir" parameterType="Map">
+		insert into tb_testInfo(test_name, test_start, test_end, ci_no) values(#{test_name}, #{test_start}, #{test_end}, #{ci_no})
+	</insert>
+	<select id="getTotalTestLstCnt" resultType="int" parameterType="Map">
+		select count(*) from tb_testInfo where ci_no = #{l_no}
+	</select>
+	<insert id="problemAdd" parameterType="Map">
+		insert into tb_test(test_no ,q_no, ci_no, t_que, t_ex1, t_ex2, t_ex3, t_ex4, t_ans) values(#{test_no} ,#{q_no}, #{ci_no}, #{t_que}, #{t_ex1}, #{t_ex2}, #{t_ex3}, #{t_ex4}, #{t_ans})
+	</insert>
+	<select id="getProblemList" resultType="kr.happyjob.study.lmg.model.Test">
+		select * from tb_test where test_no = #{test_no}
+	</select>
+	<select id="problemDetail" parameterType="Map" resultType="kr.happyjob.study.lmg.model.Test">
+		select * from tb_test where test_no = #{test_no} and  q_no = #{q_no}
+	</select>
+	<delete id="deleteProblem">
+		delete from tb_test where test_no = #{test_no} and q_no = #{q_no}
+	</delete>
+	<update id="updateProblem" parameterType="Map">
+		update tb_test set q_no = #{q_no}, t_que = #{t_que}, t_ans = #{t_ans}, t_ex1 = #{t_ex1}, t_ex2 = #{t_ex2}, t_ex3 = #{t_ex3}, t_ex4 = #{t_ex4} where test_no = #{test_no} and q_no = #{q_no_org}
+	</update>
+</mapper>

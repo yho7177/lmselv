@@ -1,0 +1,71 @@
+package kr.happyjob.study.cmg.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.happyjob.study.cmg.dao.CommodityDao;
+import kr.happyjob.study.cmg.model.CommodityModel;
+import kr.happyjob.study.system.model.NoticeModel;
+
+@Service
+public class CommodityServiceImpl implements CommodityService {
+
+	@Autowired
+	CommodityDao commodityDao;
+
+	
+	//강의실조회
+	@Override
+	public List<CommodityModel> commodityList(Map<String, Object> paramMap) throws Exception{
+
+		List<CommodityModel> commodityList = commodityDao.commodityList(paramMap);
+		return commodityList;
+	}
+	
+	//강의실카운트
+	@Override
+	public int commodityCnt(Map<String, Object> paramMap) throws Exception {
+		int commodityCnt = commodityDao.commodityCnt(paramMap);
+		
+		return commodityCnt;
+	}
+	
+	//강의실 신규등록
+	@Override
+	public int insertCommodity(Map<String, Object> paramMap) throws Exception {
+		
+		int statusChange = commodityDao.insertCommodity(paramMap);
+		
+		return statusChange;
+		
+	}
+	//강의실 신규수정
+	@Override
+	public int updateCommodity(Map<String, Object> paramMap) throws Exception {
+		
+		int statusChange = commodityDao.updateCommodity(paramMap);
+		return statusChange;
+		
+		
+	}
+	//강의실 상세보기
+	@Override
+	public CommodityModel commodityDetail(Map<String, Object> paramMap) throws Exception {
+		
+		CommodityModel commodityModel = commodityDao.commodityDetail(paramMap);
+		return commodityModel;
+	}
+	
+	//강의실 삭제
+	@Override
+	public int deleteCommodity(Map<String, Object> paramMap) throws Exception {
+		int statusChange = commodityDao.deleteCommodity(paramMap);
+		return statusChange;
+	}
+
+
+
+}

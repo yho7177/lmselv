@@ -1,0 +1,49 @@
+package kr.happyjob.study.lmg.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.happyjob.study.lmg.model.SurveyModel;
+
+
+public interface SurveyDAO {
+
+	/* 관리자 수강 목록 조회 */
+	public List<SurveyModel> listLmgSurveyMgt(Map<String, Object> paramMap) throws Exception;
+	
+	/* 관리자 수강 목록 카운트 조회 */
+	public int countListLmgSurveyMgt(Map<String, Object> paramMap)throws Exception;
+	
+	/* 강사 수강 목록 조회 */
+	public List<SurveyModel> listLmgSurveyResult(Map<String, Object> paramMap) throws Exception;
+	
+	/* 강사 수강 목록 카운트 조회 */
+	public int countListLmgSurveyResult(Map<String, Object> paramMap)throws Exception;
+	
+	/* 학생 수강 목록 조회 */
+	public List<SurveyModel> listLmgSurvey(Map<String, Object> paramMap) throws Exception;
+	
+	/* 학생 수강 목록 카운트 조회 */
+	public int countListLmgSurvey(Map<String, Object> paramMap)throws Exception;
+	
+	/* 학생 목록 조회 */
+	public List<SurveyModel> listLmgSurveyUser(Map<String, Object> paramMap) throws Exception;
+	
+	/* 학생 목록 카운트 조회 */
+	public int countListLmgSurveyUser(Map<String, Object> paramMap)throws Exception;
+	
+	/* 설문조사 모달 불러오기 */
+	public List<SurveyModel> surveyQList(Map<String, Object> paramMap) throws Exception;
+	
+	/* 설문조사 카운트 조회 */
+	public int countSurvyQList(Map<String, Object> paramMap)throws Exception;
+	
+	/* 설문 라디오버튼 값 DB insert */
+	public int srvyQueSub(Map<String, Object> paramMap) throws Exception;
+	
+	/* 설문 상태 업데이트 */
+	public void svyYN(Map<String, Object> paramMap) throws Exception;
+	
+	/* 설문조가 값 불러오기 */
+	public List<SurveyModel> surveyAList(Map<String, Object> paramMap) throws Exception;
+}

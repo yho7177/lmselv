@@ -1,0 +1,253 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>SamplePage1</title>
+<!-- sweet alert import -->
+<script src='${CTX_PATH}/js/sweetalert/sweetalert.min.js'></script>
+<jsp:include page="/WEB-INF/view/common/common_include.jsp"></jsp:include>
+<!-- sweet swal import -->
+
+<script type="text/javascript">
+	
+	
+    $(document).ready(function() {
+    	// 무엇을 검색했는지 남겨놓기 위함
+    	$("#searchWord").val("${param.searchWord}");
+    	
+    	// 과정명 클릭했을때 시험 정보 가져오기
+    	$(".lectureName").click(function() {
+    		// 강의번호 가져오기
+    		let l_no = $(this).attr("id");
+    		l_no = l_no.split("_")[1];
+    		$("#lectureNo").val(l_no);
+    		let param = {
+    				l_no : l_no
+    		}
+    		var resultCallback = function(data) {
+    			getTestList(data);
+    		};
+    		
+    		callAjax("/lmg/getTestList", "post", "text", true, param, resultCallback);
+    	});
+    	
+    	
+	});
+    // 강의에 대한 시험등록 초기 절차(시험에 대한 개략적 정보) submit 버튼
+    function addTestFir() {
+    	let no = $("#lectureNo").val();
+    	let name = $("#test_name").val();
+    	let start = $("#test_start").val();
+    	let end = $("#test_end").val();
+    	
+    	let param = {
+    			ci_no : no,
+    			test_name : name,
+    			test_start : start,
+    			test_end : end
+    	}
+    	
+    	var resultCallback = function(data) {
+			
+		};
+		// 시험정보 등록 ajax
+		callAjax("/lmg/addTestFir", "post", "text", false, param, resultCallback);
+		gfCloseModal();
+		
+		let param1 = {
+			l_no : no	
+		}
+		
+		var resultCallback1 = function(data) {
+			getTestList(data);
+		};
+		// 시험 정보 등록하고 리스트 다시 출력 ajax
+		callAjax("/lmg/getTestList", "post", "text", false, param1, resultCallback1);
+    }
+    // 모달 닫기
+    function cancelModal() {
+    	gfCloseModal();
+    }
+	// 강의에 대한 시험등록 초기 절차(시험에 대한 개략적 정보)
+    function testAdd() {
+    	gfModalPop("#layer2");
+    }
+ // 강의에 대한 시험 문제 등록
+    function testInputModal() {
+    	gfModalPop("#layer1");
+    }
+    
+	function getTestList(data) {
+		$("#testList").empty().append(data);
+	}
+</script>
+
+</head>
+<body>
+	<!-- 모달 배경 -->
+	<div id="mask"></div>
+
+	<div id="wrap_area">
+
+		<h2 class="hidden">header 영역</h2>
+		<jsp:include page="/WEB-INF/view/common/header.jsp"></jsp:include>
+
+		<h2 class="hidden">컨텐츠 영역</h2>
+		<div id="container">
+			<ul>
+				<li class="lnb">
+					<!-- lnb 영역 --> <jsp:include
+						page="/WEB-INF/view/common/lnbMenu.jsp"></jsp:include> <!--// lnb 영역 -->
+				</li>
+				<li class="contents">
+					<!-- contents -->
+					<h3 class="hidden">contents 영역</h3> <!-- content -->
+					<div class="content">
+
+						<p class="Location">
+							<a href="../dashboard/dashboard.do" class="btn_set home">메인으로</a>
+							<span class="btn_nav bold">학습관리</span> <span class="btn_nav bold">시험문제관리
+							</span> <a href="/lmg/examMgt.do" class="btn_set refresh">새로고침</a>
+						</p>
+
+						<br>
+
+
+						<div>
+							<form action="${pageContext.request.contextPath }/lmg/examMgt.do"
+								method="get">
+								<table>
+									<tr>
+										<td width="30" height="25" style="font-size: 100%"></td>
+										<td width="100" height="25"
+											style="font-size: 150%; font-weight: bold;">과정명</td>
+										<td width="300" height="25" style="font-size: 100%"><input
+											class="inputTxt p100" type="text" id="searchWord"
+											name="searchWord" /></td>
+										<td width="100" height="25" style="font-size: 100%"><input
+											type="submit" class="btnType blue" value="검색" /></td>
+									</tr>
+								</table>
+							</form>
+						</div>
+
+						<br />
+						<div>
+							<table class="col">
+								<caption>caption</caption>
+								<colgroup>
+									<col width="30%">
+									<col width="12%">
+									<col width="23%">
+
+								</colgroup>
+
+								<thead>
+									<tr>
+										<th scope="col">과정명</th>
+										<th scope="col">강사 아이디</th>
+										<th scope="col">기간</th>
+
+									</tr>
+								</thead>
+								<tbody>
+									<c:if test="${result != null }">
+										<tr>
+											<td>${result }</td>
+											<td></td>
+											<td></td>
+										</tr>
+									</c:if>
+									<c:forEach var="i" items="${lecture }">
+										<tr>
+											<td class="lectureName" id="lecture_${i.ci_no }">${i.ci_name }</td>
+											<td>${i.loginID }</td>
+											<td>${i.ci_start }~${i.ci_end }</td>
+										</tr>
+									</c:forEach>
+								</tbody>
+							</table>
+						</div>
+						<div class="paging_area" style="display: inline;">
+							<div class="paging">
+								<a class="first"
+									href="/lmg/examMgt.do?pageNo=1&searchWord=${param.searchWord}"></a>
+								<c:if test="${param.pageNo != 1 }">
+									<a class="pre"
+										href="/lmg/examMgt.do=${param.pageNo - 1 }&searchWord=${param.searchWord}">
+									</a>
+								</c:if>
+								<c:forEach var="i" begin="${pi.startPageNoOfBlock }"
+									end="${pi.endPageNoOfBlock }">
+									<a
+										href="/lmg/examMgt.do?pageNo=${i }&searchWord=${param.searchWord}">${i }</a>
+								</c:forEach>
+								<c:if test="${param.pageNo != pi.totalPage }">
+									<a class="next"
+										href="/lmg/examMgt.do3?pageNo=${param.pageNo + 1 }&searchWord=${param.searchWord}">
+									</a>
+								</c:if>
+								<a class="last"
+									href="/lmg/examMgt.do?pageNo=${pi.totalPage}&searchWord=${param.searchWord}"></a>
+
+							</div>
+						</div>
+						
+						<br /> <br />
+
+						<div id="testList"></div>
+					</div> <!--// content -->
+
+					<h3 class="hidden">풋터 영역</h3> <jsp:include
+						page="/WEB-INF/view/common/footer.jsp"></jsp:include>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<!--// 모달팝업 -->
+	<div id="layer1" class="layerPosition layerPop layerType2"
+		style="width: 600px;">따라라라라란란따라랄라라란</div>
+
+	<div id="layer2" class="layerPosition layerPop layerType2"
+		style="width: 600px;">
+		<br> <br> <strong style="font-size: 120%">&nbsp;&nbsp;&nbsp;&nbsp;시험등록</strong>
+		<br> <br>
+		
+		<table class= "row">
+			<caption>caption</caption>
+			<colgroup>
+				<col width="120px">
+				<col width="*">
+				<col width="120px">
+				<col width="*">
+				<col width="120px">
+			</colgroup>
+			<tr>
+				<th scope="row">시험명<span class="font_red">*</span></th>
+				<td colspan="2"><input type="text" id="test_name" /></td>
+				<td><input type="hidden" id="lectureNo" /></td>
+			</tr>
+			<tr>
+				<th scope="row">시험 시작일 <span class="font_red">*</span></th>
+				<td colspan="2"><input type="date" id="test_start" /></td>
+			</tr>
+			<tr>
+				<th scope="row">시험 마감일 <span class="font_red">*</span></th>
+				<td colspan="2"><input type="date" id="test_end" /></td>
+			</tr>
+		</table>
+		
+		
+		<div class="btn_areaC mt30">
+					<a href="javascript:addTestFir();" class="btnType blue"
+						> <span>시험등록 완료</span></a> <a 
+						href="javascript:cancelModal();" class="btnType gray"><span>취소</span></a>
+				</div>
+	</div>
+</body>
+</html>

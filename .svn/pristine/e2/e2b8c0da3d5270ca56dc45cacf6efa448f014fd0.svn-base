@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.lmg.dao.LmgExamCDAO">
+	<select id="getExam" parameterType="Map" resultType="kr.happyjob.study.lmg.model.TestInfoSumClass">
+		select * from tb_list a join tb_classinfo b join tb_testInfo c on a.ci_no = b.ci_no and b.ci_no = c.ci_no where a.loginID = #{loginId} order by c.ci_no desc limit #{startNum}, #{PageCntPerBlock};
+	</select>
+	<select id="getCompareResult" parameterType="Map" resultType="int">
+		select count(*) from tb_testjoin where loginID = #{loginId} and test_no = #{test_no}
+	</select>
+	<select id="getTotCntExamByUser" parameterType="Map" resultType="int">
+		select count(*) from tb_list a join tb_classinfo b join tb_testInfo c on a.ci_no = b.ci_no and b.ci_no = c.ci_no where a.loginID = #{loginId} order by c.ci_no desc;
+	</select>
+	<select id="getExamInfo" resultType="kr.happyjob.study.lmg.model.Test" parameterType="Map">
+		select * from tb_test where ci_no = #{ci_no} and test_no = #{test_no} order by q_no
+	</select>
+	<insert id="submitExam" parameterType="Map">
+		insert into tb_testjoin(test_no, q_no, loginID, ci_no, tj_ans, tj_score) values(#{test_no}, #{q_no}, #{loginId}, #{ci_no}, #{tj_ans}, #{tj_score})
+	</insert>
+</mapper>

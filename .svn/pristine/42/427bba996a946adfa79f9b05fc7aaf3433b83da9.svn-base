@@ -1,0 +1,189 @@
+package kr.happyjob.study.mnp.controller;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import javax.servlet.http.HttpSession;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.happyjob.study.mnp.model.MnpModel;
+import kr.happyjob.study.mnp.service.MnpService;
+
+@Controller
+@RequestMapping("/mnp/")
+public class MnpController {
+	
+	@Autowired
+	MnpService mnpService;
+	
+	// Set logger
+	private final Logger logger = LogManager.getLogger(this.getClass());
+
+	// Get class name for logger
+	private final String className = this.getClass().toString();
+	
+	/* 강사 초기화면 이동 */
+	@RequestMapping("professorMgt.do")
+	public String professorMgt() {
+		
+		return "mnp/professorMgt";
+	}
+	
+	/* 강사 검색 결과 조회 */
+	@RequestMapping("listProfessorMgt.do")
+	public String listProfessorMgt(Model model, @RequestParam Map<String, Object> paramMap, HttpSession session) throws Exception {
+		
+		logger.info("+ Start " + className + ".listProfessorMgt");
+		
+		int listCount = mnpService.selectListCountTypeD(paramMap);
+		System.out.println("count: " + listCount);
+		
+		model.addAttribute("listCount", listCount);
+		
+		int currentPage = Integer.parseInt((String)paramMap.get("currentPage"));	// 현재 페이지 번호
+		int pageSize = Integer.parseInt((String)paramMap.get("pageSize"));			// 페이지 사이즈
+		int pageIndex = (currentPage-1)*pageSize;														// 페이지 시작 row 번호
+		
+		/* 시간날 때 페이징 수정 */
+		
+		//double d = (double)listCount / (double)pageSize;
+		//int s = (int) Math.round(d);
+		
+		//System.out.println("반올림: " + s);
+		//paramMap.put("s", s);
+				
+		paramMap.put("pageIndex", pageIndex);
+		paramMap.put("pageSize", pageSize);
+		
+		logger.info("   - paramMap : " + paramMap);
+
+		System.out.println("paramMap: " + paramMap);
+		
+		String type = (String) session.getAttribute("userType");
+		System.out.println("type: " + type);
+
+		List<MnpModel> mnpList = mnpService.selectMemberList(paramMap);
+
+		logger.info("   - mnpList : " + mnpList);
+
+		model.addAttribute("mnpList", mnpList);
+		
+		model.addAttribute("pageSize", pageSize);
+		model.addAttribute("currentPageComnGrpCod",currentPage);
+	
+	
+		return "mnp/mnpList";
+	}
+	
+	/* 강사 정보 삭제 */
+	@RequestMapping("deleteListProfessorMgt.do")
+	@ResponseBody
+	public Map<String, Object>  deleteListProfessorMgt(Model model, @RequestParam Map<String, Object> paramMap) throws Exception {
+		
+		logger.info("+ Start " + className + ".deleteListProfessorMgt");
+		logger.info("   - paramMap : " + paramMap);
+		
+		String str = (String) paramMap.get("select_obj");
+
+		List<String> list = new ArrayList<>();
+
+		StringTokenizer token = new StringTokenizer(str, ",");
+		for(int i=0; token.hasMoreTokens(); i++) {
+			list.add(token.nextToken().trim());
+		}
+
+		String result = "SUCCESS";
+		String resultMsg = "삭제 되었습니다.";
+		
+		mnpService.deleteMemberList(list);
+		
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap.put("result", result);
+		resultMap.put("resultMsg", resultMsg);
+
+		return resultMap;
+	}
+	
+	/*  학생 초기화면 이동 */
+	@RequestMapping("studentMgt.do")
+	public String studentMgt() {
+		
+		return "mnp/studentMgt";
+	}
+	
+	/* 학생 검색 결과 조회 */
+	@RequestMapping("listStudentMgt.do")
+	public String listStudentMgt(Model model, @RequestParam Map<String, Object> paramMap, HttpSession session) throws Exception {
+		
+		logger.info("+ Start " + className + ".listStudentMgt");
+		logger.info("   - paramMap : " + paramMap);
+		
+		int listCount = mnpService.selectListCountTypeC(paramMap);
+		System.out.println("count: " + listCount);
+		
+		model.addAttribute("listCount", listCount);
+		
+		int currentPage = Integer.parseInt((String)paramMap.get("currentPage"));	// 현재 페이지 번호
+		int pageSize = Integer.parseInt((String)paramMap.get("pageSize"));			// 페이지 사이즈
+		int pageIndex = (currentPage-1)*pageSize;														// 페이지 시작 row 번호
+				
+		paramMap.put("pageIndex", pageIndex);
+		paramMap.put("pageSize", pageSize);
+
+		System.out.println("paramMap: " + paramMap);
+
+		List<MnpModel> mnpList = mnpService.selectMemberListTypeC(paramMap);
+
+		logger.info("   - mnpList : " + mnpList);
+
+		model.addAttribute("mnpList", mnpList);
+		
+		model.addAttribute("pageSize", pageSize);
+		model.addAttribute("currentPageComnGrpCod",currentPage);
+	
+		return "mnp/mnpList";
+	}
+	
+	/* 학생 정보 삭제 */
+	@RequestMapping("deleteListStudentMgt.do")
+	@ResponseBody
+	public Map<String, Object>  deleteListStudentMgt(Model model, @RequestParam Map<String, Object> paramMap) throws Exception {
+		
+		logger.info("+ Start " + className + ".deleteListStudentMgt");
+		logger.info("   - paramMap : " + paramMap);
+		
+		String str = (String) paramMap.get("select_obj");
+
+		List<String> list = new ArrayList<>();
+
+		StringTokenizer token = new StringTokenizer(str, ",");
+		for(int i=0; token.hasMoreTokens(); i++) {
+			list.add(token.nextToken().trim());
+		}
+
+		String result = "SUCCESS";
+		String resultMsg = "삭제 되었습니다.";
+		
+		mnpService.deleteMemberListTypeC(list);
+		
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap.put("result", result);
+		resultMap.put("resultMsg", resultMsg);
+
+		return resultMap;
+	}
+	
+
+}

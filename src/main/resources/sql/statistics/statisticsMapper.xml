@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.statistics.dao.StatisticsDAO">
+	<select id="getExamStatistics" parameterType="Map" resultType="kr.happyjob.study.statistics.model.ExamStatistics">
+		select a.ci_name,
+		          a.ci_no, 
+		          a.ci_start, 
+		          a.ci_end ,
+		          b.test_no ,
+		          b.test_start, 
+		          sum(c.tj_score) totscore 
+		from
+			tb_classinfo a inner join tb_testInfo b
+									inner join tb_testjoin c 
+		on
+			a.ci_no = b.ci_no
+				and
+			a.ci_no = c.ci_no
+				and
+			b.test_no = c.test_no
+		group by
+			a.ci_no
+		limit
+			#{pageIndex}, #{pageSize}
+	</select>
+	<select id="getExamStatisticsCnt" resultType="int">
+		select
+			count(tmp.test_no)
+		from (
+					select
+						c.test_no
+					from
+						tb_classinfo a inner join tb_testInfo b
+												inner join tb_testjoin c
+					on
+						a.ci_no = b.ci_no
+							and
+						a.ci_no = c.ci_no
+							and
+						b.test_no = c.test_no
+					group by
+						c.test_no
+					) as tmp
+	</select>
+	<select id="getStuCnt" resultType="int" parameterType="int">
+		select
+			count(*)
+		from
+			tb_list
+		where
+			ci_no = #{ci_no}
+	</select>
+	<select id="getExamChart" parameterType="Map" resultType="kr.happyjob.study.statistics.model.ExamStatistics">
+		select
+			test_start ,
+			count(*) as totscore 
+		 from (
+		           select
+		           		a.ci_name,
+		           		a.ci_no,
+		           		a.ci_start,
+		           		b.test_no,
+		           		b.test_start,
+		           		sum(c.tj_score) totscore 
+		             from 
+		             tb_classinfo a inner join tb_testInfo b 
+		                      				 inner join tb_testjoin c
+		             on
+		             	a.ci_no = b.ci_no
+		             		and
+		             	a.ci_no = c.ci_no
+		             		and
+		             	b.test_no = c.test_no
+		           where
+		           		c.ci_no = #{ci_no} 
+		           group by
+		           		c.loginID,
+		           		c.test_no
+		         ) as t 
+	   where
+	   		t.totscore &lt; 80
+	   group by
+	   		t.test_no 
+	</select>
+	<select id="getClassInfo" parameterType="Map" resultType="kr.happyjob.study.lmg.model.ClassInfo">
+		select
+			ci_no,
+			ci_name,
+			ci_start,
+			ci_end
+		from
+			tb_classinfo
+		<where>
+			<if test='searchStart != ""'>
+				date_format(ci_start, '%Y-%m') >= #{searchStart} 
+			</if>
+			<if test='searchEnd != "" '>
+				and date_format(ci_start, '%Y-%m') <![CDATA[<=]]> #{searchEnd}
+			</if>
+		</where>
+		order by ci_no desc
+		limit
+			#{startNum}, #{postPerPage}
+	</select>
+	<select id="getClassStudentNum" parameterType="int" resultType="int">
+		SELECT
+			count(*)
+		FROM
+			tb_list
+		WHERE
+			ci_no = #{ci_no}
+	</select>
+	<select id="getDateGroup" parameterType="Map" resultType="kr.happyjob.study.lmg.model.StuNumChart">
+		SELECT
+			count(a.ci_no) num,
+       		concat(YEAR(b.ci_start), '-', MONTH(b.ci_start)) AS date
+		FROM
+			tb_list a inner JOIN tb_classinfo b
+		ON
+			a.ci_no = b.ci_no
+		<where>
+			<if test='searchStart != ""'>
+				date_format(ci_start, '%Y-%m') >= #{searchStart} 
+			</if>
+			<if test='searchEnd != "" '>
+				and date_format(ci_start, '%Y-%m') <![CDATA[<=]]> #{searchEnd}
+			</if>
+		</where>
+		GROUP BY
+			date
+		ORDER BY
+			date;
+	</select>
+	<select id="getClassInfoCnt" resultType="int">
+		select
+			count(*)
+		from
+			tb_classinfo
+	</select>
+</mapper>

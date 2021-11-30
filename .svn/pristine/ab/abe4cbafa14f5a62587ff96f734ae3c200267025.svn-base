@@ -1,0 +1,7 @@
+package kr.happyjob.study.lmg.dao;
+
+
+public interface LmgExamDDAO {
+
+
+}

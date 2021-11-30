@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.statistics.dao.StatisticsDAO">
+	<select id="getExamStatistics" parameterType="Map" resultType="kr.happyjob.study.statistics.model.ExamStatistics">
+		select 
+		a.ci_name,
+		a.ci_no, 
+		a.ci_start, 
+		a.ci_end ,
+		b.test_no ,
+		b.test_start, 
+		sum(c.tj_score) totscore 
+		from tb_classinfo a join tb_testInfo b join tb_testjoin c 
+		on a.ci_no = b.ci_no and a.ci_no = c.ci_no and b.test_no = c.test_no
+		group by a.ci_no limit #{pageIndex}, #{pageSize}
+	</select>
+	<select id="getExamStatisticsCnt" resultType="int">
+		select count(tmp.test_no) from (select 
+		c.test_no from tb_classinfo a join tb_testInfo b join tb_testjoin c on a.ci_no = b.ci_no and a.ci_no = c.ci_no and b.test_no = c.test_no
+		group by c.test_no) as tmp
+	</select>
+	<select id="getStuCnt" resultType="int" parameterType="int">
+		select count(*) from tb_list where ci_no = #{ci_no}
+	</select>
+	<select id="getExamChart" parameterType="Map" resultType="kr.happyjob.study.statistics.model.ExamStatistics">
+		select test_start , count(*) as totscore from
+		(select a.ci_name, a.ci_no, a.ci_start, b.test_no, b.test_start, sum(c.tj_score) totscore from
+		tb_classinfo a join tb_testInfo b join tb_testjoin c on a.ci_no = b.ci_no and a.ci_no = c.ci_no and b.test_no = c.test_no
+		where c.ci_no = #{ci_no} group by c.loginID, c.test_no) as t where t.totscore &lt; 80 group by t.test_no
+	</select>
+	<select id="getClassInfo" resultType="kr.happyjob.study.lmg.model.ClassInfo">
+		select * from tb_classinfo order by ci_no desc
+	</select>
+	<select id="getClassStudentNum" parameterType="int" resultType="int">
+		select count(*) from tb_list where ci_no = #{ci_no}
+	</select>
+	<select id="getDateGroup" resultType="kr.happyjob.study.lmg.model.StuNumChart">
+		select count(a.ci_no) num ,concat(YEAR(b.ci_start), '-', MONTH(b.ci_start)) as date 
+from tb_list a join tb_classinfo b on a.ci_no = b.ci_no group by date order by date;
+	</select>
+</mapper>

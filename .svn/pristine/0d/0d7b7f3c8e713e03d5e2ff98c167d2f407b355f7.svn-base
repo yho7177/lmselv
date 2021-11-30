@@ -1,0 +1,39 @@
+package kr.happyjob.study.lmg.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.happyjob.study.lmg.model.SurveyModel;
+
+public interface SurveyService {
+
+	/* 관리자 수강 목록 조회 */
+	public List<SurveyModel> listSurveyMgt(Map<String, Object> paramMap) throws Exception;
+	
+	/* 관리자 수강 목록 카운트 조회 */
+	public int countListSurveyMgt(Map<String, Object> paramMap) throws Exception;
+	
+	/* 강사 수강 목록 조회 */
+	public List<SurveyModel> listSurveyResult(Map<String, Object> paramMap) throws Exception;
+	
+	/* 강사 수강 목록 카운트 조회 */
+	public int countListSurveyResult(Map<String, Object> paramMap) throws Exception;
+	
+	/* 학생 수강 목록 조회 */
+	public List<SurveyModel> listSurvey(Map<String, Object> paramMap) throws Exception;
+	
+	/* 학생 수강 목록 카운트 조회 */
+	public int countListSurvey(Map<String, Object> paramMap) throws Exception;
+	
+	/* 학생 목록 조회 */
+	public List<SurveyModel> listSurveyUser(Map<String, Object> paramMap) throws Exception;
+	
+	/* 학생 목록 카운트 조회 */
+	public int countListSurveyUser(Map<String, Object> paramMap) throws Exception;
+	
+	/* 설문조사 모달 불러오기 */
+	public List<SurveyModel> svyQList(Map<String, Object> paramMap) throws Exception;
+	
+	/* 설문조사 카운트 조회 */
+	public int countSvyQList(Map<String, Object> paramMap) throws Exception;
+}

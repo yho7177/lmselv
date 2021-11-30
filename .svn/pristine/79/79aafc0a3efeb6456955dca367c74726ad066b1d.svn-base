@@ -1,0 +1,29 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>					
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<c:if test="${totalCntHwMgt eq 0 }">
+	<tr>
+		<td colspan="10">과제가 존재하지 않습니다.</td>
+	</tr>
+</c:if>
+
+<c:if test="${totalCntHwMgt > 0 }">
+<c:set var="nRow" value="${pageSize*(currentPageHwMgt-1)}" />
+<c:forEach items="${listHwMgtModel}" var="list">
+	<tr>
+		<td>${list.ci_name}</td>
+		<td>
+			<a href="javascript:fListHwSub(1, '${ list.hw_no}', '${ list.ci_no}');"><span>${list.name}</span></a>
+		</td>
+		<td>
+			<a href="javascript:fHwMgtPopModal('${ list.hw_no}');"><span>${list.hw_name}</span></a>
+		</td>
+		<td><fmt:formatDate  value="${list.hw_date}" pattern="yyyy-MM-dd"/></td>
+	</tr>
+<c:set var="nRow" value="${nRow + 1}" />
+</c:forEach>
+</c:if>
+
+<input type="hidden" id="totalCntHwMgt" name="totalCntHwMgt" value ="${totalCntHwMgt}"/>

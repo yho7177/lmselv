@@ -1,0 +1,60 @@
+package kr.happyjob.study.statistics.service;
+
+import java.sql.Date;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.happyjob.study.lmg.model.ClassInfo;
+import kr.happyjob.study.lmg.model.StuNumChart;
+import kr.happyjob.study.statistics.dao.StatisticsDAO;
+import kr.happyjob.study.statistics.model.ExamStatistics;
+
+@Service
+public class StatisticsServiceImpl implements StatisticsService {
+	@Autowired
+	private StatisticsDAO dao;
+
+	@Override
+	public List<ExamStatistics> getExamStatistics(Map<String, Object> paramMap) throws Exception {
+		return dao.getExamStatistics(paramMap);
+	}
+
+	@Override
+	public int getExamStatisticsCnt() throws Exception {
+		return dao.getExamStatisticsCnt();
+	}
+
+	@Override
+	public Integer getStuCnt(int ci_no) throws Exception {
+		return dao.getStuCnt(ci_no);
+	}
+
+	@Override
+	public List<ExamStatistics> getExamChart(Map<String, Object> paramMap) throws Exception {
+		return dao.getExamChart(paramMap);
+	}
+
+	@Override
+	public Map<String, Object> getStudentNumForClass() throws Exception {
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<ClassInfo> lst = dao.getClassInfo();
+		List<Integer> cnt = new ArrayList<Integer>();
+		List<StuNumChart> date = dao.getDateGroup();
+		for(ClassInfo c : lst) {
+			cnt.add(dao.getClassStudentNum(c.getCi_no()));
+		}
+		map.put("lst", lst);
+		map.put("cnt", cnt);
+		map.put("date", date);
+		 
+		return map;
+	}
+
+	
+}

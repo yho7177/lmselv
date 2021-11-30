@@ -1,0 +1,58 @@
+package kr.happyjob.study.lsp.model;
+
+import java.util.Date;
+
+public class NoticeNewModel {
+	
+	//공지사항테이블
+	private int ntNo;
+	private String loginID;
+	private String ntDate;
+	private String ntTitle;
+	private String ntContent;
+	private int bntHit;
+	
+	public int getNtNo() {
+		return ntNo;
+	}
+	public void setNtNo(int ntNo) {
+		this.ntNo = ntNo;
+	}
+	public String getLoginID() {
+		return loginID;
+	}
+	public void setLoginID(String loginID) {
+		this.loginID = loginID;
+	}
+	
+	public String getNtDate() {
+		return ntDate;
+	}
+	public void setNtDate(String ntDate) {
+		this.ntDate = ntDate;
+	}
+	public String getNtTitle() {
+		return ntTitle;
+	}
+	public void setNtTitle(String ntTitle) {
+		this.ntTitle = ntTitle;
+	}
+	public String getNtContent() {
+		return ntContent;
+	}
+	public void setNtContent(String ntContent) {
+		this.ntContent = ntContent;
+	}
+	public int getBntHit() {
+		return bntHit;
+	}
+	public void setBntHit(int bntHit) {
+		this.bntHit = bntHit;
+	}
+	
+	
+	
+	
+	
+	
+}

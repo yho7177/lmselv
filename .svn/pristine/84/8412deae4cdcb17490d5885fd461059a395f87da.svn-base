@@ -1,0 +1,35 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>					
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<c:if test="${totalCntSurvey eq 0 }">
+	<tr>
+		<td colspan="5">데이터가 존재하지 않습니다.</td>
+	</tr>
+</c:if>
+
+<c:if test="${totalCntSurvey > 0 }">
+	<c:set var="nRow" value="${pageSize*(currentPageSurvey-1)}" />
+	<c:forEach items="${listSurveyModel}" var="list">
+		<tr>
+			<td>${list.ci_name}</td>
+			<td>${list.t_name}</td>
+			<td><fmt:formatDate  value="${list.ci_start}" pattern="yyyy-MM-dd"/></td>
+			<td><fmt:formatDate  value="${list.ci_end}" pattern="yyyy-MM-dd"/></td>
+			<td>
+				<!-- 학생로그인 - 설문 팝업 띄우기! -->
+				<c:if test="${usertype == 'C' }">
+					<a class="btnType3 color1" href="javascript:fSurveyPopModal('${ list.ci_no}');"><span>설문</span></a>
+				</c:if>
+				<!-- 강사로그인 - 학생들 목록 불러오기! -->
+				<c:if test="${usertype == 'D' or  usertype == 'A'}">
+					<a class="btnType3 color1" href="javascript:fListHwSub('${ list.ci_no}');"><span>조회</span></a>
+				</c:if>
+			</td>
+		</tr>
+	<c:set var="nRow" value="${nRow + 1}" />
+	</c:forEach>
+</c:if>
+
+<input type="hidden" id="totalCntSurvey" name="totalCntSurvey" value ="${totalCntSurvey}"/>

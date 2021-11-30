@@ -1,0 +1,120 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<!DOCTYPE html >
+
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>LMS :: 설문</title>
+
+<jsp:include page="/WEB-INF/view/common/common_include.jsp"></jsp:include>
+
+<script type="text/javascript">
+
+</script>
+
+</head>
+<body>
+<form id="myForm"  method="">
+
+<!-- 모달 배경 -->
+<div id="mask"></div>
+	
+	<div id="wrap_area">
+	
+	<h2 class="hidden">header 영역</h2>
+		<jsp:include page="/WEB-INF/view/common/header.jsp"></jsp:include>
+		<!--  컨텐츠 영역 -->
+		<div id="container">
+			<ul>
+				<li class="lnb">
+					 <jsp:include 	page="/WEB-INF/view/common/lnbMenu.jsp"></jsp:include>
+				</li>
+				<li class="contents">
+					<!-- contents -->
+					<div class="content">
+						<p class="Location">
+							<a href="../dashboard/dashboard.do" class="btn_set home">메인으로</a> 
+							<span	class="btn_nav bold">학습관리 / 설문</span>  
+							<a href="../lmg/survey.do" class="btn_set refresh">새로고침</a> 
+						</p>
+						
+						<p class="conTitle mt50">
+							<span>설문조사</span>
+							<span class="fr">
+								<!-- 관리자 설문등록 -->
+								<a class="btnType blue"  href="javascript:fSurveyPopModal()" name="modal" id="btnInsertSurvey"><span>설문등록</span></a>
+							</span>
+						</p>
+						
+					<!-- 설문목록 불러오기 -->
+						<div class="divListSurvey">
+							<table class="col">
+								<caption>caption</caption>
+								<colgroup>
+									<col width="35%">
+									<col width="15%">
+									<col width="20%">
+									<col width="20%">
+									<col width="10%">
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">강의명</th>
+										<th scope="col">강사명</th>
+										<th scope="col">강의시작</th>
+										<th scope="col">강의종료</th>
+										<th scope="col">설문</th>
+									</tr>
+								</thead>
+								<tbody id="listSurvey">
+									<tr>
+										<td colspan="5">수강중인 강의가 없습니다.</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="paging_area"  id="listSurveyPagination"> </div>
+						
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+</form>
+
+<!-- 모달팝업시작 -->
+<form id="modalForm">
+<input type="hidden" id="currentPage" value="1">
+<input type="hidden" id="lec_id2" name="lec_id" value="${lec_id}"/>
+<div id="survey_modal" class="layerPop layerType2" style="width: 800px; ">
+	<dl>
+	<dt>
+		<strong>설문지</strong>
+	</dt>
+	<dd class="content" >
+		<!-- s : 여기에 내용입력 -->
+		<div class="sidescroll" style="height:700px; overflow: auto !important;">
+			<table class="row" id="surveyQue">
+				<caption>caption</caption>
+				<tbody><!-- for문 --></tbody>
+			</table>
+		</div>
+		<!--  <div class="paging_area" id="Pagination_svy"></div> -->
+		<!-- e : 여기에 내용입력 -->
+		<div class="btn_areaC mt30">
+			<a href="javascript:fsubmitSvy()" class="btnType blue" id="btnSaveSvy" name="btn"><span>제출</span></a> 
+			<a href="" class="btnType gray" id="btnClose" name="btn"><span>닫기</span></a>
+		</div>
+	</dd>
+	</dl>
+<a href="" class="closePop"><span class="hidden">닫기</span></a>
+</div>
+
+</form>
+</body>
+</html>

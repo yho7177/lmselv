@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.lmg.dao.QnaDao">
+
+<!-- qna 클릭시 조회된 화면 -->
+<select id="listQnaCod" resultType="kr.happyjob.study.lmg.model.ListQnaCodModel">
+		/*kr.happyjob.study.lmg.dao.QnaDao.listQnaCod*/
+		SELECT
+					qna_no
+				,	loginID 
+				,   qna_title
+				,	qna_date
+				
+				
+		FROM tb_qna
+		<where>
+				<if test="(sname != null) and (!sname.equals(''))">
+					<choose>
+						<when test="oname eq 'qna_title'.toString()">
+							and qna_title Like CONCAT('%',#{sname},'%')
+						</when>
+						<when test="oname eq 'qna_no'.toString()">
+							and qna_no Like CONCAT('%',#{sname},'%')
+						</when>
+						<when test="oname eq 'loginID'.toString()">
+							and loginID Like CONCAT('%',#{sname},'%')
+						</when>
+					</choose>
+				</if>
+		</where>
+		
+		ORDER BY qna_no DESC
+		LIMIT #{pageIndex},#{pageSize}
+			
+</select>
+
+
+<select id="countListQnaCod" resultType="int">
+		/*kr.happyjob.study.lmg.dao.QnaDao.countListQnaCod*/
+		SELECT COUNT(1)
+		
+		FROM tb_qna
+		
+</select>
+
+<select id="selectQnaCttCod" resultType="kr.happyjob.study.lmg.model.QnaCttModel">
+		/*kr.happy.study.lmg.dao.QnaDao.selectQnaCttCod*/
+		SELECT 
+						loginID
+					,	qna_title
+					,	qna_content
+					,	qna_no
+		FROM	tb_qna
+		WHERE qna_no =#{qna_no}	
+</select>
+
+<!--입력창 저장  -->
+<insert id="insertQnaCttCod">
+		/*kr.happy.study.lmg.dao.QnaDao.insertQnaCttCod*/
+		<selectKey resultType="int" keyProperty="qna_no" order="BEFORE">
+			SELECT IFNULL(MAX(qna_no),0) + 1  FROM tb_qna
+		</selectKey>
+		INSERT INTO tb_qna
+		(
+				loginID, qna_title, qna_content, qna_no, qna_date
+		)
+		VALUES
+		(
+					#{loginID}
+				,	#{qna_title}
+				,	#{qna_content}
+				,	#{qna_no}
+				,	NOW()
+				
+		)
+		
+		
+
+</insert>
+<!--질문창 수정  -->
+<update id="updateQnaCttCod">
+		/*kr.happy.study.lmg.dao.QnaDao.updateQnaCttCod*/
+		UPDATE tb_qna
+			   SET 
+			   			qna_title=#{qna_title}
+			   		,	qna_content=#{qna_content}	
+			   		,	qna_date=NOW()
+		 
+		 WHERE	qna_no = #{qna_no};   		
+			   		
+			   			
+</update>
+</mapper>

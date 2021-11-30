@@ -1,0 +1,117 @@
+package kr.happyjob.study.statistics.controller;
+
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.gson.JsonArray;
+
+import kr.happyjob.study.lmg.model.ClassInfo;
+import kr.happyjob.study.lmg.model.StuNumChart;
+import kr.happyjob.study.statistics.model.ExamStatistics;
+import kr.happyjob.study.statistics.service.StatisticsService;
+import kr.happyjob.study.system.model.NoticeModel;
+
+@Controller
+@RequestMapping("/statistics/")
+public class StatisticsController {
+	@Autowired
+	private StatisticsService service;
+	
+	@RequestMapping("failedNum.do")
+	public String failedNum() {
+		
+		return "statistics/failedNum";
+	}
+	
+	@RequestMapping(value="getExamStatistics.do", method = RequestMethod.POST)
+	public void getExamStatistics(Model model, @RequestParam Map<String, Object> paramMap) {
+		int currentPage = Integer.parseInt((String) paramMap.get("currentPage")); // 현재페이지
+	    int pageSize = Integer.parseInt((String) paramMap.get("pageSize"));
+	    int pageIndex = (currentPage - 1) * pageSize;
+		
+		paramMap.put("pageIndex", pageIndex);
+		paramMap.put("pageSize", pageSize);
+		
+		List<ExamStatistics> lst;
+		try {
+			lst = service.getExamStatistics(paramMap);
+			model.addAttribute("notice", lst);
+			
+			int lstCnt = service.getExamStatisticsCnt();
+			
+			// 대상자수
+			List<Integer> stuCnt = new ArrayList<Integer>();
+			for(ExamStatistics e : lst) {
+				stuCnt.add(service.getStuCnt(e.getCi_no()));
+			}
+			 
+			model.addAttribute("stuCnt", stuCnt);
+		    model.addAttribute("noticeCnt", lstCnt);
+		    model.addAttribute("pageSize", pageSize);
+		    model.addAttribute("currentPage",currentPage);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	@RequestMapping(value="getExamChart.do", method = RequestMethod.POST)
+	public void getExamChart(Model model, @RequestParam Map<String, Object> paramMap, HttpServletResponse resp ) {
+		try {
+			List<ExamStatistics> lst = service.getExamChart(paramMap);
+			JSONObject jsonData = new JSONObject();
+			JSONArray arr = new JSONArray();
+			SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd");
+			if(lst.size() == 0) {
+				jsonData.put("result", "false");
+			} else {
+				jsonData.put("result", "true");
+				for(ExamStatistics e : lst) {
+					JSONObject tmp = new JSONObject();
+					String date = s.format(e.getTest_start());
+					tmp.put("test_start", date);
+					tmp.put("totscore", e.getTotscore());
+					arr.add(tmp);
+					jsonData.put("list", arr);
+					tmp = null;
+				}
+			}
+			
+			resp.getWriter().print(jsonData);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@RequestMapping("studentNum.do")
+	public void studentNum(Model model) {
+		try {
+			Map<String, Object> map = service.getStudentNumForClass();
+			List<ClassInfo> lst = (List<ClassInfo>) map.get("lst");
+			List<Integer> cnt = (List<Integer>) map.get("cnt");
+			List<StuNumChart> date = (List<StuNumChart>) map.get("date");
+			model.addAttribute("lst", lst);
+			model.addAttribute("cnt", cnt);
+			model.addAttribute("date", date);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+}

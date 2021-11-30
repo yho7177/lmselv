@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.mnp.dao.MnpDao">
+
+		<!-- 강사 총 개수 조회 -->
+		<select id="selectListCountTypeD" parameterType="java.util.Map" resultType="int">
+		/*kr.happy.study.mnp.dao.MnpDao.selectMemberList*/
+				SELECT COUNT(1) FROM tb_userinfo
+				WHERE user_type = 'D'
+				<if test="(sname != null) and (!sname.equals(''))">
+					and name  Like CONCAT('%', #{sname}, '%')
+				</if>
+		</select>
+
+		<!-- 강사 검색 -->
+		<select id="selectMemberList" parameterType="java.util.Map" resultType="kr.happyjob.study.mnp.model.MnpModel">
+		/*kr.happy.study.mnp.dao.MnpDao.selectMemberList*/
+				SELECT		
+				name
+			,	loginID
+			, 	password
+			,   tel
+			,	reg_date
+		FROM	tb_userinfo
+		WHERE
+				user_type = 'D'
+			<if test ="(sname!= null) and (!sname.equals(''))">
+			    and name  Like CONCAT('%', #{sname}, '%')
+			</if>
+
+			<if test ="(joinDate != null) and (!joinDate.equals(''))">
+			    and reg_date  <![CDATA[>=]]> #{joinDate}
+			</if>			
+			<if test ="(endDate != null) and (!endDate.equals(''))">
+			    and reg_date  <![CDATA[<=]]> #{endDate}
+			</if>		
+		 ORDER BY reg_date DESC
+		 LIMIT #{pageIndex}, #{pageSize}
+		 </select>
+		 
+	<!-- 강사 삭제 -->
+	<delete id="deleteMemberList">
+		/* kr.happy.study.cmnt.dao.CmntBbsDao.deleteMemberList*/
+		DELETE FROM tb_userinfo
+		WHERE loginID IN 
+			<if test="list != null">
+        			<foreach collection="list" item="loginID" open="(" separator="," close=")">
+            			#{loginID}
+        			</foreach>
+			</if>
+	</delete>
+	
+		<!-- 학생 총 개수 조회 -->
+		<select id="selectListCountTypeC" parameterType="java.util.Map" resultType="int">
+		/*kr.happy.study.mnp.dao.MnpDao.selectListCountTypeC*/
+				SELECT COUNT(1) FROM tb_userinfo
+				WHERE user_type = 'C'
+				<if test="(sname != null) and (!sname.equals(''))">
+					and name  Like CONCAT('%', #{sname}, '%')
+				</if>
+		</select>
+	
+		<!-- 학생 검색 -->
+		<select id="selectMemberListTypeC" parameterType="java.util.Map" resultType="kr.happyjob.study.mnp.model.MnpModel">
+		/*kr.happy.study.mnp.dao.MnpDao.selectMemberList*/
+				SELECT		
+				name
+			,	loginID
+			, 	password
+			,   tel
+			,	reg_date
+		FROM	tb_userinfo
+	 WHERE	user_type = 'C'
+			<if test ="(sname!= null) and (!sname.equals(''))">
+			    and name  Like CONCAT('%', #{sname}, '%')
+			</if>
+			<if test ="(joinDate != null) and (!joinDate.equals(''))">
+			    and reg_date  <![CDATA[>=]]> #{joinDate}
+			</if>			
+			<if test ="(endDate != null) and (!endDate.equals(''))">
+			    and reg_date  <![CDATA[<=]]> #{endDate}
+			</if>
+		 ORDER BY reg_date DESC
+		 LIMIT #{pageIndex}, #{pageSize}
+		 </select>
+		 
+	<!-- 학생 삭제 -->
+	<delete id="deleteMemberListTypeC">
+		/* kr.happy.study.cmnt.dao.CmntBbsDao.deleteMemberList*/
+		DELETE FROM tb_userinfo
+		WHERE loginID IN 
+			<if test="list != null">
+        			<foreach collection="list" item="loginID" open="(" separator="," close=")">
+            			#{loginID}
+        			</foreach>
+			</if>
+	</delete>
+
+</mapper>

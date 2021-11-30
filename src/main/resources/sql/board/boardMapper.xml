@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.board.dao.BoardDao">
+
+	<select id="getBoardList" resultType="kr.happyjob.study.board.model.BoardVO">
+		select b_no from tb_board
+	</select>
+	<select id="getBoardDetail" parameterType="Map" resultType="kr.happyjob.study.board.model.BoardVO">
+		select b_no from tb_board where b_no = #{b_no}
+	</select>
+
+	<select id="selectNBoardTotal" resultType="int" >
+		SELECT COUNT(1) FROM tb_board
+	</select>
+
+ 	<select id="selectNBoardList" parameterType="Map" resultType="kr.happyjob.study.board.model.BoardVO" >
+
+
+SELECT
+				b_no,
+				loginID,
+				b_title,
+				b_date,
+				b_content
+			FROM
+				tb_board
+		ORDER BY b_no DESC
+		 LIMIT #{startPage}, #{endPage}
+
+	</select>
+
+
+	<!-- <select id="selectBorder" statementType="CALLABLE" resultType="java.util.HashMap"
+			parameterType="java.util.HashMap">
+		{CALL web_main.selectBorder(#{currentPage,mode=IN},#{recordCountPerPage, mode=IN},#{ref_cursor,
+		mode=OUT,jdbcType=CURSOR,javaType=ResultSet,
+		resultMap=borderResultMap},#{list_count,javaType=INTEGER,mode=OUT,jdbcType=NUMERIC})}
+
+	</select> -->
+
+	<!-- <select id="listLmgGrp" resultType="kr.happyjob.study.lmg.model.LmgListModel">
+		/*kr.happyjob.study.lmg.dao.LmgDAO*/
+		SELECT
+		ci_no
+		, ci_name
+		, r_no
+		, ci_type
+		, loginID
+		, ci_content
+		, ci_date
+		, ci_limit
+		, ci_start
+		, ci_end
+		, ci_goal
+		, ci_plan
+		, ci_attend
+		FROM tb_classinfo
+		<where>
+			<if test="(sname != null) and (!sname.equals(''))">
+				<choose>
+					<when test="oname eq 'ci_no'.toString()">
+						and ci_no Like CONCAT('%', #{sname}, '%')
+					</when>
+					<when test="oname eq 'ci_name'.toString()">
+						and ci_name LIKE CONCAT('%', #{sname}, '%')
+					</when>
+					<otherwise>
+						AND 1=2
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+
+		ORDER BY ci_no DESC
+		LIMIT #{pageIndex}, #{pageSize}
+
+	</select>
+
+	학생 강의 목록조회
+	<select id="listLgmStudent" resultType="kr.happyjob.study.lmg.model.LmgListModel">
+		/*kr.happyjob.study.lmg.dao.LmgDAO*/
+		SELECT
+			li.ci_no
+			 , ci.ci_name
+			 , ci.r_no
+			 , ci.ci_type
+			 , li.loginID
+			 , ci.ci_content
+			 , ci.ci_date
+			 , ci.ci_limit
+			 , ci.ci_start
+			 , ci.ci_end
+			 , ci.ci_goal
+			 , ci.ci_plan
+			 , ci.ci_attend
+		FROM tb_classinfo ci
+				 JOIN tb_list li
+					  ON   li.ci_no = ci.ci_no
+		WHERE li.loginID = #{loginId}
+		ORDER BY ci.ci_no DESC
+			LIMIT #{pageIndex}, #{pageSize}
+
+	</select>
+ -->
+
+
+
+
+
+
+
+
+
+	<insert id="boardRegister" parameterType="Map">
+		insert into tb_board(loginID, b_title, b_content)
+		values(#{loginID}, #{b_title}, #{b_content})
+	</insert>
+	<update id="modifyBoard" parameterType="Map">
+		update tb_board set b_title = #{b_title}, b_content = #{b_content} where b_no = #{b_no}
+	</update>
+	<delete id="deleteBoard" parameterType="Map">
+		delete from tb_board where b_no = #{b_no}
+	</delete>
+
+</mapper>
+

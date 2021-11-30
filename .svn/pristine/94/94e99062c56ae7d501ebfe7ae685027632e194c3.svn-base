@@ -1,0 +1,8 @@
+package kr.happyjob.study.lmg.service;
+
+import java.util.Map;
+
+public interface LmgExamDService {
+
+	
+}

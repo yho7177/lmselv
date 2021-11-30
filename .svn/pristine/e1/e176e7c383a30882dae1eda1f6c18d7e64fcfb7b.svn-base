@@ -1,0 +1,133 @@
+package kr.happyjob.study.lmg.controller;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.happyjob.study.lmg.model.PagingInfo;
+import kr.happyjob.study.lmg.model.Test;
+import kr.happyjob.study.lmg.model.TestInfoSumClass;
+import kr.happyjob.study.lmg.service.LmgExamCService;
+import kr.happyjob.study.lmg.service.LmgExamCServiceImpl;
+
+/**
+/**
+
+  * @FileName : LmgExamCController.java
+
+  * @Project : lmselv
+
+  * @Date : 2021. 11. 12. 
+
+  * @작성자 : 윤효열
+
+  * @변경이력 :
+
+  * @프로그램 설명 : 학생이 접근하는 시험 관련 controller
+
+  */
+@Controller
+@RequestMapping("/lmg/")
+public class LmgExamCController {
+	@Autowired
+	LmgExamCService service;
+	/**
+	
+	  * @Method Name : examination
+	
+	  * @작성일 : 2021. 11. 11.
+	
+	  * @작성자 : 윤효열
+	
+	  * @변경이력 : 
+	
+	  * @Method 설명 : 학습관리 - 시험응시 페이지(학생용)
+	
+	  * @return
+	
+	  */
+	@RequestMapping("examination.do")
+	public String examination(@RequestParam Map<String, Object> paramMap, Model model, HttpServletRequest req) {
+		String tmp = (String) paramMap.get("pageNo");
+		int pageNo = 0;
+		if(tmp == null) {
+			pageNo = 1;
+		} else {
+			pageNo = Integer.parseInt(tmp);
+		}
+		String loginId = (String) req.getSession().getAttribute("loginId");
+		try {
+			Map<String, Object> map = service.getExam(loginId, pageNo);
+			List<TestInfoSumClass> lst = (List<TestInfoSumClass>) map.get("lst");
+			List<String> compare = (List<String>) map.get("compare");
+			PagingInfo pi = (PagingInfo) map.get("pi");
+			model.addAttribute("lst", lst);
+			model.addAttribute("compare", compare);
+			model.addAttribute("pi", pi);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "/lmg/examination";
+	}
+	
+	/**
+	
+	  * @Method Name : examStart
+	
+	  * @작성일 : 2021. 11. 16.
+	
+	  * @작성자 : 윤효열
+	
+	  * @변경이력 : 
+	
+	  * @Method 설명 : 시험 응시 버튼을 눌렀을떄 시험 정보 가져오는 ajax
+	
+	
+	  */
+	@RequestMapping(value="examStart", method = RequestMethod.POST)
+	public void examStart(@RequestParam Map<String, Object> paramMap, Model model) {
+		try {
+			List<Test> lst = service.getExamInfo(paramMap);
+			model.addAttribute("lst", lst);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	/**
+	
+	  * @Method Name : submitExam
+	
+	  * @작성일 : 2021. 11. 16.
+	
+	  * @작성자 : 윤효열
+	
+	  * @변경이력 : 
+	
+	  * @Method 설명 : 시험 응시 후 제출 버튼 눌렀을떄!, 자동 점수 계산도 해주자!
+	
+	  * @param paramMap
+	  * @return
+	
+	  */
+	@RequestMapping(value="submitExam", method = RequestMethod.POST)
+	public String submitExam(@RequestParam Map<String, Object> paramMap) {
+		try {
+			int i = service.submitExam(paramMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "redirect:/lmg/examination.do";
+	}
+}

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.lsp.dao.NoticeNewDao">
+
+	<!-- 공지사항 목록 조회 -->
+	<select id="noticeList" resultType="kr.happyjob.study.lsp.model.NoticeNewModel">
+		/*kr.happy.study.lsp.dao.NoticeDao.NoticeList*/
+		SELECT
+		n.nt_no as ntNo
+		, n.nt_title as ntTitle
+		, DATE_FORMAT(n.nt_date, '%Y-%m-%d') as ntDate
+		, u.loginID as loginID
+
+		FROM tb_notice n
+		join tb_userinfo u
+		on n.loginID = u.loginID
+		<where>
+			<if test="(title != null) and (!title.equals(''))">
+				and n.nt_title Like CONCAT('%', #{title}, '%')
+			</if>
+			<if test="(from_date != null) and (!from_date.equals(''))">
+				and n.nt_date  <![CDATA[>=]]>
+				STR_TO_DATE(#{from_date}, '%Y-%m-%d')
+			</if>
+			<if test="(to_date != null) and (!to_date.equals(''))">
+				and n.nt_date  <![CDATA[<=]]>
+				STR_TO_DATE(#{to_date}, '%Y-%m-%d')
+			</if>
+		</where>
+		ORDER BY nt_no DESC
+		LIMIT #{pageIndex}, #{pageSize}
+
+
+	</select>
+
+	<!-- 공지사항 목록 총 갯수 조회 -->
+	<select id="noticeCnt" resultType="int">
+		/*kr.happy.study.lsp.dao.NoticeDao.noticeCnt*/
+		SELECT COUNT(1) AS
+		tot_cnt FROM tb_notice
+		<where>
+			<if test="(title != null) and (!title.equals(''))">
+				and nt_title Like CONCAT('%', #{title}, '%')
+			</if>
+			<if test="(from_date != null) and (!from_date.equals(''))">
+				and nt_date  <![CDATA[>=]]>
+				STR_TO_DATE(#{from_date}, '%Y-%m-%d')
+			</if>
+			<if test="(to_date != null) and (!to_date.equals(''))">
+				and nt_date  <![CDATA[<=]]>
+				STR_TO_DATE(#{to_date}, '%Y-%m-%d')
+			</if>
+		</where>
+		ORDER BY nt_no DESC
+	</select>
+
+	<!-- 공지사항 단건 조회 -->
+	<select id="noticeDetail" resultType="kr.happyjob.study.lsp.model.NoticeNewModel">
+		/*kr.happy.study.lsp.dao.noticeDao.selectnotice*/
+		SELECT
+		  u.loginID as loginID
+		, n.nt_title as ntTitle
+		, n.nt_content as ntContent
+		, n.nt_no as ntNo
+		, DATE_FORMAT(n.nt_date, '%Y-%m-%d') as ntDate
+		FROM tb_notice n
+		JOIN tb_userinfo u
+		ON n.loginID = u.loginID
+		WHERE n.nt_no = #{ntNo}
+		
+		<where>
+			<if test="(title != null) and (!title.equals(''))">
+				and n.nt_title Like CONCAT('%', #{title}, '%')
+			</if>
+			<if test="(from_date != null) and (!from_date.equals(''))">
+				and n.nt_date  <![CDATA[>=]]>
+				STR_TO_DATE(#{from_date}, '%Y-%m-%d')
+			</if>
+			<if test="(to_date != null) and (!to_date.equals(''))">
+				and n.nt_date  <![CDATA[<=]]>
+				STR_TO_DATE(#{to_date}, '%Y-%m-%d')
+			</if>
+		</where>
+	</select>
+
+	<!-- 공지사항 신규등록(저장) : -->
+	<insert id="insertNotice" parameterType="java.util.Map">
+		<selectKey resultType="string" keyProperty="ntNo" order="BEFORE">
+			SELECT IFNULL(MAX(nt_no),0) + 1 FROM tb_notice
+		</selectKey>
+		INSERT
+		INTO tb_notice
+		(
+		nt_no, loginID, nt_title, nt_content, nt_date
+		)
+		VALUES
+		(
+		  #{ntNo}
+		, #{loginID}
+		, #{ntTitle}
+		, #{ntContent}
+		, NOW()
+		)
+	</insert>
+
+	<!-- 공지사항 수정 -->
+	<update id="updateNotice">
+		UPDATE tb_notice
+		SET nt_title = #{ntTitle}
+		, nt_content = #{ntContent}
+		, nt_date = NOW()
+		WHERE nt_no = #{ntNo}
+	</update>
+
+	<!-- 공지사항 삭제 -->
+	<delete id="deleteNotice">
+		DELETE
+		FROM tb_notice
+		WHERE nt_no = #{ntNo}
+	</delete>
+
+
+
+</mapper>

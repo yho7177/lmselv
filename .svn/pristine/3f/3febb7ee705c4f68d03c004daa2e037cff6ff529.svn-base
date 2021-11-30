@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.cmg.dao.CommodityDao">
+
+	<!-- 강의실 목록 조회 -->
+	<select id="commodityList" resultType="kr.happyjob.study.cmg.model.CommodityModel">
+
+
+		SELECT r_no as rNo,
+		       r_name as rName,
+		       r_size as rSize,
+		       r_sit as rSit,
+		       r_content as rContent
+		  FROM tb_room
+         <where>
+			 <if test="(srName != null) and (!srName.equals(''))">
+			      AND r_name LIKE CONCAT('%',#{srName},'%')
+			 </if>
+		</where>
+		 ORDER BY r_no DESC
+		 LIMIT #{pageIndex}, #{pageSize}
+	</select>
+
+
+	<!-- 목록 총 갯수 조회 -->
+	<select id="commodityCnt" resultType="int">
+		/*kr.happy.study.cmg.dao.CommodityDao.commodityCnt*/
+		SELECT COUNT(*)
+		  FROM tb_room
+         <where>
+			 <if test="(srName != null) and (!srName.equals(''))">
+			      AND r_name LIKE CONCAT('%',#{srName},'%')
+			 </if>
+		</where>
+	</select>
+	
+	<!-- 강의실 단건 조회 : 강의실번호 클릭시 -->
+	<select id = "commodityDetail" resultType = "kr.happyjob.study.cmg.model.CommodityModel">
+		SELECT
+				r_no as rNo,
+				r_name as rName,
+				r_size as rSize,
+				r_sit as rSit,
+				r_content as rContent
+		FROM	tb_room 
+		WHERE   r_no = #{rNo}
+	</select>
+
+	<!-- 강의실 신규등록(저장) : -->
+	<insert id="insertCommodity" parameterType="java.util.Map">
+		<selectKey resultType="string" keyProperty="rNo" order="BEFORE">
+			SELECT IFNULL(MAX(r_no),0) + 1 FROM tb_room
+		</selectKey>
+		INSERT
+		INTO tb_room
+		(
+		r_no, r_name, r_size, r_sit, r_content
+		)
+		VALUES
+		(
+		  #{rNo}
+		, #{rName}
+		, #{rSize}
+		, #{rSit}
+		, #{rContent}
+		)
+	</insert>
+
+	<!-- 강의실 수정 -->
+	<update id="updateCommodity">
+		UPDATE tb_room
+		SET 
+		r_no = #{rNo}
+		,r_name = #{rName}
+		, r_size = #{rSize}
+		, r_sit = #{rSit}
+		, r_content = #{rContent}
+		WHERE r_no = #{rNo}
+	</update>
+	
+	<!-- 공지사항 삭제-->
+	<delete id="deleteCommodity">
+		DELETE
+		FROM 	tb_room
+		WHERE 	r_no = #{rNo}
+	</delete>
+
+
+</mapper>
+

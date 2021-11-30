@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.lsp.dao.LearnMtrDao">
+
+<!--강사 접속시  조회 -->
+<select id="listMtrTeachDoc" resultType="kr.happyjob.study.lsp.model.LearnMtrTeachModel">
+		/*kr.happyjob.study.lsp.dao.LearnMtrDao.listMtrTeachDoc*/	
+		SELECT
+					
+					ci.ci_no
+				,	ci.ci_content
+				,	ci.ci_date
+				,	ci.loginID
+				,	ci.ci_name
+				, 	ui.name
+		FROM tb_classinfo ci
+					JOIN tb_userinfo ui	ON	ci.loginID = ui.loginID
+			<where>
+				<if test="(sname != null) and (!sname.equals(''))">
+					<choose>
+						<when test="oname eq 'ci_name'.toString()">
+							and ci_name Like CONCAT('%', #{sname}, '%')
+						</when>
+						<when	test="oname eq 'name'.toString()">
+							and name LIKE CONCAT('%', #{sname}, '%')
+						</when>
+						<otherwise>
+							AND 1=2
+						</otherwise>
+					</choose>
+				</if>
+				AND ci.loginID = #{loginID}
+			</where>
+			
+			ORDER BY ci.ci_no DESC
+			LIMIT #{pageIndex}, #{pageSize}
+	</select>
+	<!-- 학생 접속시  -->
+	<select id="listMtrTeachDoc2" resultType="kr.happyjob.study.lsp.model.LearnMtrStudtModel">
+		/*kr.happyjob.study.lsp.dao.LearnMtrDao.listMtrTeachDoc2*/
+		SELECT
+					
+					li.ci_no
+				,	ci.ci_content
+				,	ci.ci_date
+				,	li.loginID
+				,	ci.ci_name
+				, 	ui.name
+		FROM tb_list li
+					JOIN tb_userinfo ui	ON	li.loginID = ui.loginID
+					 JOIN
+		        	tb_classinfo ci
+		        ON
+		        	ci.ci_no = li.ci_no
+			<where>
+				<if test="(sname != null) and (!sname.equals(''))">
+					<choose>
+						<when test="oname eq 'ci_name'.toString()">
+							and ci_name Like CONCAT('%', #{sname}, '%')
+						</when>
+						<when	test="oname eq 'name'.toString()">
+							and name LIKE CONCAT('%', #{sname}, '%')
+						</when>
+						<otherwise>
+							AND 1=2
+						</otherwise>
+					</choose>
+				</if>
+				AND li.loginID = #{loginID}
+			</where>
+			
+			ORDER BY li.ci_no DESC
+			LIMIT #{pageIndex}, #{pageSize}
+	</select>
+	
+	<!-- 강사 강의명 콤보박스 -->
+	<select id="initDocument" resultType="kr.happyjob.study.lsp.model.LearnMtrTeachModel">
+		/*kr.happy.study.lmg.dao.HomeworkDao.listHomeworkMgt*/
+		SELECT
+				ci.loginID
+			,	ci.ci_no
+			,	ci.ci_name
+		FROM tb_classinfo ci
+			JOIN
+					tb_userinfo ui
+			ON
+				ci.loginID = ui.loginID
+		WHERE ci.loginID = #{loginID}
+	</select>
+	
+	<!-- 학생 강의명 콤보박스 -->
+	<select id="initDocument2" resultType="kr.happyjob.study.lsp.model.LearnMtrStudtModel">
+		/*kr.happy.study.lmg.dao.HomeworkDao.listHomeworkSub*/
+		SELECT
+				li.loginID
+			,	li.ci_no
+      		,	ci.ci_name
+		FROM tb_list li
+			JOIN
+					tb_userinfo ui
+			ON
+				li.loginID = ui.loginID
+		        JOIN
+		        	tb_classinfo ci
+		        ON
+		        	ci.ci_no = li.ci_no
+		WHERE li.loginID = #{loginID}
+	</select>
+	
+	<!-- 강사별 자료 목록 카운트 조회 -->
+	<select id="countListMtrTeachDoc" resultType="int">
+	/*kr.happyjob.study.lsp.dao.LearnMtrDao.countListMtrTeachDoc*/
+		SELECT
+			Count(1) AS tot_cnt
+		FROM tb_classinfo ci
+					JOIN 
+						tb_list li ON li.ci_no = ci.ci_no
+						JOIN 
+							tb_userinfo ui ON ci.loginID = ui.loginID
+		<where>
+			<if test="(sname != null) and (!sname.equals(''))">
+				<choose>
+					<when test="oname eq 'ci_no'.toString()">
+						and ci_no Like CONCAT('%', #{sname}, '%')
+					</when>
+					<when	test="oname eq 'name'.toString()">
+						and name LIKE CONCAT('%', #{sname}, '%')
+					</when>
+					<otherwise>
+						AND 1=2
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+		AND ci.loginID = #{loginID}
+	</select>
+	
+	<!-- 학생별 자료 목록 카운트 조회 -->
+	<select id="countListMtrTeachDoc2" resultType="int">
+	/*kr.happyjob.study.lsp.dao.LearnMtrDao.countListMtrTeachDoc2*/
+		SELECT
+			Count(1) AS tot_cnt
+		FROM tb_classinfo ci
+					JOIN 
+						tb_list li ON li.ci_no = ci.ci_no
+						JOIN 
+							tb_userinfo ui ON ci.loginID = ui.loginID
+		<where>
+			<if test="(sname != null) and (!sname.equals(''))">
+				<choose>
+					<when test="oname eq 'ci_name'.toString()">
+						and ci_name Like CONCAT('%', #{sname}, '%')
+					</when>
+					<when	test="oname eq 'name'.toString()">
+						and name LIKE CONCAT('%', #{sname}, '%')
+					</when>
+					<otherwise>
+						AND 1=2
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+		AND li.loginID = #{loginID}
+	</select>
+	
+	<!-- 강사가 강의중인 목록 단건 조회 -->
+	<select id="selectMtrTeach" resultType="kr.happyjob.study.lsp.model.LearnMtrTeachModel">
+	/*kr.happyjob.study.lsp.dao.LearnMtrDao.selectMtrTeach*/
+		SELECT
+				ci.loginID
+			,	ci.ci_name
+			,	ci.ci_content
+			, 	ui.name
+		FROM tb_classinfo ci
+			JOIN
+				tb_userinfo ui
+			ON
+				ci.loginID = ui.loginID
+		WHERE ci.ci_no= #{ci_no}
+	</select>
+	<select id="countListMtrStudt" resultType="kr.happyjob.study.lsp.model.LearnMtrStudtModel">
+	/*kr.happyjob.study.lsp.dao.LearnMtrDao.countListMtrStudt*/
+	
+	
+	</select>
+	
+	<select id="listMtrStudt" resultType="kr.happyjob.study.lsp.model.LearnMtrStudtModel">
+	/*kr.happyjob.study.lsp.dao.LearnMtrDao.listMtrStudt*/
+		
+	
+	</select>
+</mapper>

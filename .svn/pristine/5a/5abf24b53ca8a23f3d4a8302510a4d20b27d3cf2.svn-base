@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.lmg.dao.HomeworkDao">
+
+<!-- 과제 목록 조회 -->
+	<select id="listHomeworkMgt" resultType="kr.happyjob.study.lmg.model.HomeworkMgtModel">
+		/*kr.happy.study.lmg.dao.HomeworkDao.listHomeworkMgt*/
+		SELECT
+				hw.hw_no
+			,	hw.ci_no
+			,	hw.hw_name
+			,	hw.hw_content
+			,	hw_date
+			,	ci.loginID
+			,	ci.ci_name
+			, 	ui.name
+		FROM tb_homework hw
+			JOIN
+				tb_classinfo ci
+			ON
+				hw.ci_no = ci.ci_no
+				JOIN
+					tb_userinfo ui
+				ON
+					ci.loginID = ui.loginID
+		<where>
+			<if test="(sname != null) and (!sname.equals(''))">
+				<choose>
+					<when test="oname eq 'ci_name'.toString()">
+						and ci_name Like CONCAT('%', #{sname}, '%')
+					</when>
+					<when	test="oname eq 'name'.toString()">
+						and name LIKE CONCAT('%', #{sname}, '%')
+					</when>
+					<otherwise>
+						AND 1=2
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+		
+		ORDER BY hw_no DESC
+		LIMIT #{pageIndex}, #{pageSize}
+	</select>
+	
+	<!-- 과제 목록 강의목록 조회 -->
+	<select id="initHomework" resultType="kr.happyjob.study.lmg.model.HomeworkMgtModel">
+		/*kr.happy.study.lmg.dao.HomeworkDao.listHomeworkMgt*/
+		SELECT
+				ci.loginID
+			,	ci.ci_no
+			,	ci.ci_name
+		FROM tb_classinfo ci
+			JOIN
+					tb_userinfo ui
+			ON
+				ci.loginID = ui.loginID
+		WHERE ci.loginID = #{loginID}
+	</select>
+	
+	<!-- 과제 목록 학생 강의목록 조회 -->
+	<select id="initHomework2" resultType="kr.happyjob.study.lmg.model.HomeworkSubModel">
+		/*kr.happy.study.lmg.dao.HomeworkDao.listHomeworkSub*/
+		SELECT
+				li.loginID
+			,	li.ci_no
+      		,	ci.ci_name
+		FROM tb_list li
+			JOIN
+					tb_userinfo ui
+			ON
+				li.loginID = ui.loginID
+	        JOIN
+	        	tb_classinfo ci
+	        ON
+	        	ci.ci_no = li.ci_no
+		WHERE li.loginID = #{loginID}
+	</select>
+	
+<!-- 과제 목록 총 갯수 조회 -->
+	<select id="countListHomeworkMgt" resultType="int">
+	/*kr.happy.study.lmg.dao.HomeworkDao.countListHomeworkMgt*/
+		SELECT
+			Count(1) AS tot_cnt
+		FROM tb_homework hw
+			JOIN
+					tb_classinfo ci
+				ON
+					hw.ci_no = ci.ci_no
+					JOIN
+						tb_userinfo ui
+					ON
+						ci.loginID = ui.loginID
+		<where>
+			<if test="(sname != null) and (!sname.equals(''))">
+				<choose>
+					<when test="oname eq 'ci_name'.toString()">
+						and ci_name Like CONCAT('%', #{sname}, '%')
+					</when>
+					<when	test="oname eq 'name'.toString()">
+						and name LIKE CONCAT('%', #{sname}, '%')
+					</when>
+					<otherwise>
+						AND 1=2
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+	</select>
+	
+	<!-- 과제목록 단건조회 -->
+	<select id="selectHwMgt" resultType="kr.happyjob.study.lmg.model.HomeworkMgtModel">
+	/*kr.happy.study.lmg.dao.HomeworkDao.selectHwMgt*/
+		SELECT
+				hw.hw_no
+			,	hw.ci_no
+			,	hw.hw_name
+			,	hw.hw_content
+			,	hw.hw_date
+			,	ci.loginID
+			,	ci.ci_name
+			, 	ui.name
+		FROM tb_homework hw
+			JOIN
+				tb_classinfo ci
+			ON
+				hw.ci_no = ci.ci_no
+				JOIN
+					tb_userinfo ui
+				ON
+					ci.loginID = ui.loginID
+		WHERE hw.hw_no = #{hw_no}
+	</select>
+	
+	<!-- 과제목록 학생 단건조회 -->
+	<select id="selectHwMgt2" resultType="kr.happyjob.study.lmg.model.HomeworkMgtModel">
+	/*kr.happy.study.lmg.dao.HomeworkDao.selectHwMgt2*/
+		SELECT
+				hw.hw_no
+			,	hw.ci_no
+			,	hw.hw_name
+			,	hw.hw_content
+			,	hw.hw_date
+			,	ci.loginID
+			,	ci.ci_name
+			, 	ui.name
+		FROM tb_homework hw
+			JOIN
+				tb_classinfo ci
+			ON
+				hw.ci_no = ci.ci_no
+        JOIN
+				tb_list li
+  			ON
+  				ci.ci_no = li.ci_no
+  				JOIN
+  					tb_userinfo ui
+  				ON
+  					li.loginID = ui.loginID
+            where ui.loginID = #{loginID} and hw.hw_no = #{hw_no}
+	</select>
+	
+	<!-- 과제 등록 저장 -->
+	<insert id="insertHwMgt">
+	/*kr.happy.study.lmg.dao.HomeworkDao.insertHwMgt*/
+		<selectKey resultType="string" keyProperty="hw_no" order="BEFORE">
+			SELECT IFNULL(MAX(hw_no),0) + 1  FROM tb_homework
+		</selectKey>
+		INSERT INTO tb_homework
+		(
+				hw_no
+			,	ci_no
+			,	hw_name
+			,	hw_content
+			,	hw_date
+		)
+		VALUES
+		(
+				#{hw_no}
+			,	#{ci_no}
+			,	#{hw_name}
+			,	#{hw_content}
+			,	now()
+		)
+	</insert>
+	
+	<!-- 과제 등록 수정 -->
+	<update id="updateHwMgt">
+		UPDATE tb_homework  SET
+				hw_name = #{hw_name}
+			,	hw_content = #{hw_content}
+		WHERE hw_no = #{hw_no}
+	</update>
+	
+	<!-- 과제 등록 삭제 -->
+	<delete id="deleteHwMgt">
+		DELETE FROM tb_homework WHERE hw_no = #{hw_no}
+	</delete>
+	
+	<!-- 과제 제출 목록 조회 -->
+	<select id="listHomeworkSub" resultType="kr.happyjob.study.lmg.model.HomeworkSubModel">
+	/*kr.happy.study.lmg.dao.HomeworkDao.listHomeworkSub*/
+		SELECT
+				hs.hws_no
+			,	hs.hws_name
+			,	hs.hws_content
+			,	hs.hws_date
+			,	ci.ci_name
+			,	hw.hw_name
+			,	li.loginID
+			,	ui.name
+			,	fu.file_name
+		FROM tb_hwsubmit hs
+			JOIN 
+				tb_homework hw
+			On
+				hs.hw_no = hw.hw_no
+				JOIN
+					tb_list li
+				ON
+					li.loginID = hs.loginID AND li.ci_no = hs.ci_no 
+					JOIN
+						tb_classinfo ci
+					ON
+						hs.ci_no = ci.ci_no
+						JOIN
+							tb_userinfo ui
+						ON
+							li.loginID = ui.loginID
+							JOIN
+								tb_fileup fu
+							ON
+								hs.file_no = fu.file_no
+			<where>
+				<if test="(sname != null) and (!sname.equals(''))">
+					<choose>
+						<when test="oname eq 'ci_name'.toString()">
+							and ci_name Like CONCAT('%', #{sname}, '%')
+						</when>
+						<when	test="oname eq 'name'.toString()">
+							and name LIKE CONCAT('%', #{sname}, '%')
+						</when>
+						<otherwise>
+							AND 1=2
+						</otherwise>
+					</choose>
+				</if>
+				AND hw.hw_no = #{hw_no}
+			</where>
+			
+		ORDER BY hs.hws_no DESC
+		LIMIT #{pageIndex}, #{pageSize}
+	</select>
+	<!-- 과제 제출 목록 총 갯수 조회 -->
+	<select id="countListHomeworkSub" resultType="int">
+	/*kr.happy.study.lmg.dao.HomeworkDao.countListHomeworkSub*/
+		SELECT
+			Count(1) AS tot_cnt
+		FROM tb_hwsubmit hs
+			JOIN 
+				tb_homework hw
+			On
+				hs.hw_no = hw.hw_no
+				JOIN
+					tb_list li
+				ON
+					li.loginID = hs.loginID AND li.ci_no = hs.ci_no 
+					JOIN
+						tb_classinfo ci
+					ON
+						hs.ci_no = ci.ci_no
+						JOIN
+							tb_userinfo ui
+						ON
+							li.loginID = ui.loginID
+							JOIN
+								tb_fileup fu
+							ON
+								hs.file_no = fu.file_no
+			<where>
+				<if test="(sname != null) and (!sname.equals(''))">
+					<choose>
+						<when test="oname eq 'ci_name'.toString()">
+							and ci_name Like CONCAT('%', #{sname}, '%')
+						</when>
+						<when	test="oname eq 'name'.toString()">
+							and name LIKE CONCAT('%', #{sname}, '%')
+						</when>
+						<otherwise>
+							AND 1=2
+						</otherwise>
+					</choose>
+				</if>
+				AND hw.hw_no = #{hw_no}
+			</where>
+	</select>
+
+	<!-- 과제 제출 목록 단건조회 -->
+	<select id="selectHwSub" resultType="kr.happyjob.study.lmg.model.HomeworkSubModel">
+	/*kr.happy.study.lmg.dao.HomeworkDao.selectHwSub*/
+		SELECT
+			hs.hws_no
+		, 	hw.hw_no
+		,	hs.hws_name
+		,	hs.hws_content
+		,	hs.hws_date
+		,	ci.ci_name
+		,	ci.ci_no
+		,	hw.hw_name
+		,	li.loginID
+		,	ui.name
+		,	fu.file_name
+	FROM tb_hwsubmit hs
+		JOIN 
+			tb_homework hw
+		On
+			hs.hw_no = hw.hw_no
+			JOIN
+				tb_list li
+			ON
+				li.loginID = hs.loginID AND li.ci_no = hs.ci_no 
+				JOIN
+					tb_classinfo ci
+				ON
+					hs.ci_no = ci.ci_no
+					JOIN
+						tb_userinfo ui
+					ON
+						li.loginID = ui.loginID
+						JOIN
+							tb_fileup fu
+						ON
+							hs.file_no = fu.file_no
+ 		WHERE hs.hws_no = #{hws_no}
+	</select>
+	
+	<!-- 과제 제출 저장 -->
+	<insert id="insertHwSub">
+	/*kr.happy.study.lmg.dao.HomeworkDao.insertHwSub*/
+		<selectKey resultType="string" keyProperty="hws_no" order="BEFORE">
+			SELECT IFNULL(MAX(hws_no),0) + 1  FROM tb_hwsubmit
+		</selectKey>
+		INSERT INTO tb_hwsubmit
+		(
+				hws_no
+			,	hw_no
+			,	file_no
+			,	loginID
+			,	ci_no
+			,	hws_name
+			,	hws_content
+			,	hws_date
+		)
+		VALUES
+		(
+				#{hws_no}
+			,	#{hw_no_1}
+			,	#{file_no}
+			,	#{loginID}
+			,	#{ci_no}
+			,	#{hws_name}
+			,	#{hws_content}
+			,	now()
+		)
+	</insert>
+	
+	<!-- 과제 제출 수정 -->
+	<update id="updateHwSub">
+		UPDATE tb_hwsubmit  SET
+				hws_name = #{hws_name}
+			,	hws_content = #{hws_content}
+			,	file_no = #{file_no}
+		WHERE hws_no = #{hws_no}
+	</update>
+	
+	<!-- 과제 제출 삭제 -->
+	<delete id="deleteHwSub">
+		DELETE FROM tb_hwsubmit WHERE hws_no = #{hws_no}
+	</delete>
+</mapper>

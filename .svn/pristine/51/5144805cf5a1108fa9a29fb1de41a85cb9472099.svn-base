@@ -1,0 +1,63 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<div>
+							<input type="hidden" id="l_no" /> <input type="button"
+								onclick="testAdd()" value="등록" />
+						</div>
+					
+<table class="col">
+									<caption>caption</caption>
+									<colgroup>
+										<col width="25%">
+										<col width="20%">
+										<col width="20%">
+									</colgroup>
+				
+									<thead>
+										<tr>
+										    <th scope="col">과정명</th>
+											<th scope="col">시험명</th>
+											<th scope="col">기간</th>
+										</tr>
+									</thead>
+									<c:if test="${total == 0 }">
+										<tr>
+											<td>시험 정보가 없습니다!</td>
+											<td></td>
+											<td></td>
+										</tr>
+									</c:if>
+<c:forEach var="i" items="${testLst }">
+	<tr >
+		<td id="test_${i.test_no }" onclick="testInputModal(${i.test_no});">${i.ci_name }</td>
+		<td>${i.test_name }</td>
+		<td>${i.test_start } ~ ${i.test_end }</td>
+	</tr>
+</c:forEach>
+
+</table>
+<div class="paging_area" style="display: inline;">
+							<div class="paging">
+								<a class="first"
+									href=""></a>
+								<c:if test="${param.pageNo != 1 }">
+									<a class="pre"
+										href="">
+									</a>
+								</c:if>
+								<c:forEach var="i" begin="${testPi.startPageNoOfBlock }"
+									end="${testPi.endPageNoOfBlock }">
+									<a
+										href="javascript:testPaging(${i})">${i }</a>
+								</c:forEach>
+								<c:if test="${param.pageNo != pi.totalPage }">
+									<a class="next"
+										href="">
+									</a>
+								</c:if>
+								<a class="last"
+									href=""></a>
+							</div>
+						</div>
+	

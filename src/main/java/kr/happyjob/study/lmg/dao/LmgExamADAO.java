@@ -1,0 +1,83 @@
+package kr.happyjob.study.lmg.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import kr.happyjob.study.lmg.model.ClassInfo;
+import kr.happyjob.study.lmg.model.InquireExam;
+
+import kr.happyjob.study.lmg.model.Test;
+import kr.happyjob.study.lmg.model.TestInfo;
+import kr.happyjob.study.lmg.model.TestInfoSumClass;
+
+/**
+/**
+
+  * @FileName : LmgExamDAO.java
+
+  * @Project : lmselv
+
+  * @Date : 2021. 11. 11. 
+
+  * @작성자 : 윤효열
+
+  * @변경이력 :
+
+  * @프로그램 설명 : LmgExamDAO
+
+  */
+@Repository
+public interface LmgExamADAO {
+	// 현재 진행중인 강의 목록 가져오기(시험 등록 위해)
+	List<ClassInfo> getLectureList(Map<String, Object> map) throws Exception;
+	
+	// 강의 목록 페이징 처리를 위한 총 개수
+	int getTotCntForDLecture(Map<String, Object> map) throws Exception;
+	
+	// 학습관리 - 시험문제관리에서 과정명 클릭했을떄 과정에 대한 시험 리스트
+	List<TestInfo> getTestList(Map<String, Object> map) throws Exception;
+
+	// 시험 정보 목록 페이징 처리를 위한 총 개수
+	int getTotalTestLstCnt(String l_no) throws Exception;
+	
+	// 시험 정보 등록하는 ajax
+	int addTestFir(TestInfo info) throws Exception;
+	
+	// 시험에 대한 시험문제 등록 ajax
+	int problemAdd(Map<String, Object> paramMap) throws Exception;
+	
+	// 시험 문제 리스트 조회 ajax
+	List<Test> getProblemList(Map<String, Object> paramMap) throws Exception;
+	
+	// 시험 문제에 대한 상세정보 조회 ajax
+	Test problemDetail(Map<String, Object> paramMap) throws Exception;
+	
+	// 시험 문제 삭제 ajax
+	int deleteProblem(Map<String, Object> paramMap) throws Exception;
+	
+	// 시험문제 수정하는 ajax
+	int updateProblem(Map<String, Object> paramMap) throws Exception;
+	
+	// 시험 대상자 확인을 위한 강의에 대한 시험정보
+	List<TestInfoSumClass> getExsubjectMgt(Map<String, Object> paramMap) throws Exception;
+	
+	// 시험 대상자 확인을 위한 강의에 대한 시험정보 페이징 처리 위한 총개수
+	int getTotalCntByExsubject(Map<String, Object> paramMap) throws Exception;
+
+	List<TestInfoSumClass> getNonTaker(Map<String, Object> paramMap) throws Exception;
+
+	int getTaker(Map<String, Object> map) throws Exception;
+
+	List<InquireExam> testInfoSelect(Map<String, Object> paramMap) throws Exception;
+
+	List<String> noExamId(Map<String, Object> paramMap) throws Exception;
+
+	int testInfoDel(Map<String, Object> paramMap) throws Exception;
+
+	TestInfo getTestOne(Map<String, Object> paramMap) throws Exception;
+
+	int updateTestInfo(Map<String, Object> paramMap) throws Exception;
+	
+}

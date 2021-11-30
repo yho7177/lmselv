@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.happyjob.study.lmg.dao.LmgExamADAO">
+	<!-- 현재 강의중인 목록 가져오기(시험 등록 위해) -->
+	<select id="getLectureList" parameterType="Map"
+		resultType="kr.happyjob.study.lmg.model.ClassInfo">
+		select * from tb_classinfo
+		<where>
+			<if test='searchWord != null'>
+				ci_name like concat('%', #{searchWord}, '%')
+			</if>
+		</where>
+		order by ci_end desc limit #{startNum}, #{PageCntPerBlock}
+	</select>
+	<select id="getTestList" parameterType="Map"
+		resultType="kr.happyjob.study.lmg.model.TestInfo">
+		select * from tb_testInfo a, tb_classinfo b where a.ci_no =
+		b.ci_no and a.ci_no = #{l_no} limit #{startNum}, #{PageCntPerBlock}
+	</select>
+	<select id="getTotCntForDLecture" parameterType="Map"
+		resultType="int">
+		select count(*) from tb_classinfo
+		<where>
+			<if test='searchWord != null'>
+				ci_name like concat('%', #{searchWord}, '%')
+			</if>
+		</where>
+	</select>
+	<insert id="addTestFir" parameterType="Map">
+		insert into
+		tb_testInfo(test_name, test_start, test_end, ci_no)
+		values(#{test_name}, #{test_start}, #{test_end}, #{ci_no})
+	</insert>
+	<select id="getTotalTestLstCnt" resultType="int" parameterType="Map">
+		select count(*) from tb_testInfo where ci_no = #{l_no}
+	</select>
+	<insert id="problemAdd" parameterType="Map">
+		insert into
+		tb_test(test_no ,q_no, ci_no, t_que, t_ex1, t_ex2, t_ex3, t_ex4,
+		t_ans) values(#{test_no} ,#{q_no}, #{ci_no}, #{t_que}, #{t_ex1},
+		#{t_ex2}, #{t_ex3}, #{t_ex4}, #{t_ans})
+	</insert>
+	<select id="getProblemList" resultType="kr.happyjob.study.lmg.model.Test">
+		select * from tb_test
+		where test_no = #{test_no}
+	</select>
+	<select id="problemDetail" parameterType="Map"
+		resultType="kr.happyjob.study.lmg.model.Test">
+		select * from tb_test where test_no = #{test_no} and q_no =
+		#{q_no}
+	</select>
+	<delete id="deleteProblem">
+		delete from tb_test where test_no = #{test_no} and
+		q_no = #{q_no}
+	</delete>
+	<update id="updateProblem" parameterType="Map">
+		update tb_test set q_no
+		= #{q_no}, t_que = #{t_que}, t_ans = #{t_ans}, t_ex1 = #{t_ex1}, t_ex2
+		= #{t_ex2}, t_ex3 = #{t_ex3}, t_ex4 = #{t_ex4} where test_no =
+		#{test_no} and q_no = #{q_no_org}
+	</update>
+	<select id="getExsubjectMgt" parameterType="Map"
+		resultType="kr.happyjob.study.lmg.model.TestInfoSumClass">
+		select a.test_no, a.test_name, a.test_start, a.test_end, a.ci_no,
+		b.loginID, b.ci_name, a.test_status from tb_testInfo a join
+		tb_classinfo b on a.ci_no = b.ci_no
+		
+		<where>
+			<if test="searchType == null and searchType ==''">
+				a.test_status = 'ing'
+			</if>
+			<if test="searchWord != null">
+				and b.ci_name like concat('%', #{searchWord}, '%')
+			</if>
+			<if test="searchType != null ">
+				and a.test_status = #{searchType}
+			</if>
+			<if test="loginID != null">
+				and loginID = #{loginID}
+			</if>
+		</where>
+		limit #{startNum}, #{PageCntPerBlock};
+	</select>
+	<select id="getTotalCntByExsubject" parameterType="Map"
+		resultType="int">
+		select count(a.test_no) from tb_testInfo a join tb_classinfo b on
+		a.ci_no = b.ci_no
+		<where>
+			<if test="searchType == null and searchType ==''">
+				a.test_status = 'ing'
+			</if>
+		</where>
+		<where>
+			<if test="searchWord != null">
+				b.ci_name like concat('%', #{searchWord}, '%')
+			</if>
+			<if test="searchType != null ">
+				and a.test_status = #{searchType}
+			</if>
+			<if test="loginID != null">
+				and loginID = #{loginID}
+			</if>
+		</where>
+	</select>
+	<select id="getNonTaker" parameterType="Map"
+		resultType="kr.happyjob.study.lmg.model.TestInfoSumClass">
+		select * from tb_testjoin where ci_no = #{cno} and test_no
+		= #{tno} group by test_no, loginID
+	</select>
+	<select id="getTaker" resultType="int" parameterType="Map">
+		select
+		count(*) from tb_list where ci_no = #{cno}
+	</select>
+	<select id="testInfoSelect" resultType="kr.happyjob.study.lmg.model.InquireExam"
+		parameterType="Map">
+		select b.ci_no, b.test_no, b.loginID, sum(b.tj_score) as
+		tj_score from tb_list a join tb_testjoin b on a.ci_no = b.ci_no and
+		a.loginID = b.loginId where a.ci_no = #{ci_no} and b.test_no = #{test_no}
+		group by a.loginID, b.test_no order by b.tj_no
+	</select>
+	<select id="noExamId" resultType="String">
+		select loginID from tb_list where ci_no = #{ci_no}
+	</select>
+</mapper>
